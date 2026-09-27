@@ -1,0 +1,1918 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>StainlessCarbon</title>
+<meta name="description" content="Carbon and energy calculator for Jindal Stainless steel: footprint per tonne, energy per tonne, and the value of verified carbon data at the EU border.">
+<style>
+:root{
+  --font:"Segoe UI",-apple-system,BlinkMacSystemFont,Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  --bg:#ffffff; --surface:#ffffff; --box:#f5f7fa; --thbg:#eef2f6; --hover:#f3f6f9;
+  --ink:#1f2937; --ink2:#56606b; --ink3:#66707b;
+  --line:#cfd7e0; --line2:#e4e9ef;
+  --navy:#123f63; --navy2:#1b5a8c; --navytint:#eaf1f7; --navyline:#a9bfd3;
+  --money:#835600; --moneytint:#fbf6ec; --moneyline:#e6d4ae;
+  --good:#1d7a4f; --goodtint:#edf6f1; --bad:#b3392f; --badtint:#fbefed;
+  --s1:#123f63; --s2:#3f7cb0; --s3:#8aaecd; --s3ink:#0f2c45;
+  --focus:#1b6db0; --r:8px;
+}
+/* Light is the default. A dark palette exists but is opt-in only: <html data-theme="dark">. */
+:root[data-theme="dark"]{
+  --bg:#12161b; --surface:#171c22; --box:#1c232a; --thbg:#202830; --hover:#1f262e;
+  --ink:#e8edf2; --ink2:#b3bdc7; --ink3:#a3aeb9; --line:#35404b; --line2:#2a333c;
+  --navy:#9ec3e6; --navy2:#b9d4ee; --navytint:#1d2b39; --navyline:#3f5a74;
+  --money:#e3b45a; --moneytint:#261f12; --moneyline:#5a4722;
+  --good:#6cc496; --goodtint:#15261d; --bad:#f08a80; --badtint:#2a1816;
+  --s1:#dbe7f3; --s2:#7fb0dd; --s3:#3f78ad; --s3ink:#0b1a28; --focus:#7fb0dd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--font);font-variant-numeric:tabular-nums;overflow-x:hidden;min-width:320px}
+button,input{font:inherit;color:inherit}
+a{color:var(--navy2);text-underline-offset:3px}
+a:hover{color:var(--navy)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a.sr:focus{position:fixed;left:12px;top:12px;width:auto;height:auto;clip:auto;z-index:70;background:var(--navy);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-weight:600}
+.wrap{max-width:none;margin:0 auto;padding-inline:clamp(16px,2.5vw,56px)}
+.prose{max-width:72ch}
+b,strong{font-weight:600}
+
+/* ---------- header ---------- */
+.top{border-bottom:1px solid var(--line2)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:52px}
+.brand{font-weight:700;font-size:18px;color:var(--navy);white-space:nowrap}
+.toplinks{display:flex;gap:18px;align-items:center;font-size:15px;color:var(--ink2)}
+.linkbtn{background:none;border:0;color:var(--navy2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0;font-size:inherit}
+.linkbtn:hover{color:var(--navy)}
+.intro{padding:8px 0 8px}
+h1{font-size:23px;line-height:1.2;font-weight:600;color:var(--navy);letter-spacing:-.005em}
+.intro p{font-size:15.5px;color:var(--ink2);margin-top:2px}
+
+/* ---------- setup strip ---------- */
+.setup{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:9px 0}
+.grp{padding:0 16px;min-width:0}
+.grp+.grp{border-left:1px solid var(--line2)}
+.grp.scn-g{flex:1.2 1 420px}
+.grp.grade-g{flex:.9 1 310px}
+.grp.plant-g{flex:1.4 1 470px}
+.glabel{font-size:13.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.gcap{font-size:13.5px;color:var(--ink2);margin-top:4px;line-height:1.35;min-height:1.35em}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.chip,.scn{min-height:38px;padding:0 11px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);font-size:15px;cursor:pointer;white-space:nowrap;transition:background-color .12s,border-color .12s}
+.chip{min-width:48px}
+.chip:hover,.scn:hover{border-color:var(--navyline);background:var(--hover)}
+.chip[aria-pressed="true"]{background:var(--navytint);border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--navy);font-weight:600}
+.scn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--bg);font-weight:600}
+.custom-tag{font-size:13px;font-weight:600;color:var(--ink2);border:1px dashed var(--line);border-radius:4px;padding:1px 7px;text-transform:none;letter-spacing:0}
+
+/* ---------- layer 1 grid ---------- */
+.layer1{display:grid;grid-template-columns:minmax(360px,.74fr) minmax(560px,1.26fr);gap:clamp(18px,1.8vw,36px);align-items:start;margin-top:12px}
+.panel{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.levers{padding:2px 20px 2px}
+.lever{padding:6px 0 1px}
+.lever+.lever{border-top:1px solid var(--line2)}
+.lever-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lever-name{font-size:16px;font-weight:600;color:var(--ink)}
+.lever-help{font-size:14px;color:var(--ink2);line-height:1.38;margin:0}
+.lgroup{font-size:12.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);padding:8px 0 0;border-top:1px solid var(--line2)}
+.lgroup:first-child{border-top:0}
+.lgroup+.lever{border-top:0;padding-top:2px}
+.lever.off{opacity:.55}
+.stepper{display:flex;align-items:center;gap:6px;flex:none}
+.stp{width:34px;height:32px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);font-size:20px;line-height:1;cursor:pointer;color:var(--navy)}
+.stp:hover{background:var(--hover);border-color:var(--navyline)}
+.numwrap{display:flex;align-items:center;height:32px;border:1px solid var(--line);border-radius:var(--r);padding:0 8px 0 4px;background:var(--surface)}
+.numwrap:focus-within{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}
+.numin{width:3.2ch;border:0;background:transparent;text-align:right;font-size:17px;font-weight:600;color:var(--navy);outline:none;padding:0 2px}
+.numin[aria-invalid="true"]{color:var(--bad)}
+.unit{font-size:15px;color:var(--ink2);margin-left:1px}
+.lever-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--ink3);min-height:18px;margin-top:-4px}
+.lever-foot .linkbtn{font-size:13.5px;padding:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;--p:50%;margin:0;display:block}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--navy) 0,var(--navy) var(--p),var(--line) var(--p),var(--line) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-11px;border-radius:50%;background:var(--surface);border:2px solid var(--navy);box-shadow:0 1px 3px rgba(18,63,99,.28)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--navy)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid var(--navy);box-shadow:0 1px 3px rgba(18,63,99,.28)}
+input[type=range]:focus-visible{outline:none}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--navytint),0 0 0 6px var(--focus)}
+input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--navytint),0 0 0 6px var(--focus)}
+.warns{margin:0 0 12px;font-size:15px;color:var(--ink);background:var(--box);border-left:3px solid var(--navy2);padding:8px 12px;border-radius:0 var(--r) var(--r) 0}
+.warns[hidden]{display:none}
+.warns p+p{margin-top:4px}
+
+/* more levers */
+.more{margin-top:10px}
+.more-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;padding:8px 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer}
+.more-btn:hover{background:var(--hover)}
+.more-btn[aria-expanded="true"]{border-radius:var(--r) var(--r) 0 0;border-bottom-color:var(--line2)}
+.more-btn b{font-size:16px;color:var(--navy);display:block}
+.more-btn span.t{font-size:13.5px;color:var(--ink2);display:block}
+.more-body{border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);padding:4px 20px 16px}
+.chev{flex:none;width:10px;height:10px;border-right:2px solid var(--ink2);border-bottom:2px solid var(--ink2);transform:rotate(45deg);margin:0 4px 4px 0;transition:transform .15s}
+[aria-expanded="true"] .chev{transform:rotate(-135deg);margin:4px 4px 0 0}
+.subh{font-size:14px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);margin:18px 0 2px}
+.choice{padding:12px 0}
+.choice+.choice,.lever+.choice,.choice+.lever{border-top:1px solid var(--line2)}
+.choice .lever-name{display:block;margin-bottom:2px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.seg .chip{white-space:normal;text-align:left;padding:6px 12px;line-height:1.3;font-size:15px}
+.numfield{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 16px;padding:12px 0}
+.numfield+.numfield{border-top:1px solid var(--line2)}
+.numfield .lever-help{margin:0}
+.numfield input{width:120px;height:40px;border:1px solid var(--line);border-radius:var(--r);padding:0 10px;font-size:17px;font-weight:600;color:var(--navy);text-align:right;background:var(--surface)}
+.numfield input:focus{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);outline:none}
+.numfield .nf-r{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ink2)}
+.numfield .nf-r span{min-width:5.2em}
+
+/* ---------- results ---------- */
+.results{display:grid;gap:8px;min-width:0}
+.heroes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.22fr);gap:8px}
+.heroes.flash .hero{animation:heroflash .9s ease}
+@keyframes heroflash{0%{box-shadow:0 0 0 3px var(--navyline)}70%{box-shadow:0 0 0 3px var(--navyline)}100%{box-shadow:0 0 0 0 transparent}}
+.hero{border:1px solid var(--line);border-radius:var(--r);padding:8px 13px 9px;background:var(--surface);min-width:0}
+.hero .hk{font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:8px;line-height:1.3}
+.hero .hv{font-size:clamp(34px,2.6vw,48px);line-height:1.02;font-weight:600;color:var(--navy);margin-top:2px;letter-spacing:-.01em;white-space:nowrap}
+.hero .hu{font-size:13.5px;color:var(--ink2);line-height:1.3}
+.hero .hc{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.36}
+.hero .hc+.hc{margin-top:2px}
+.hero.money{background:var(--moneytint);border-color:var(--moneyline)}
+.hero.money .hv{color:var(--money);font-size:clamp(30px,2.3vw,40px)}
+.hline{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--ink2);line-height:1.3;padding-top:2px;margin-top:3px;border-top:1px solid var(--moneyline)}
+.hline b{color:var(--ink);white-space:nowrap;font-weight:600}
+.dgood{color:var(--good);font-weight:600}
+.dbad{color:var(--bad);font-weight:600}
+.split{padding:7px 14px 8px}
+.split h2,.opt1 h2{font-size:15px;font-weight:600;color:var(--ink)}
+.stackwrap{position:relative;margin-top:2px}
+.stacklabs{position:relative;height:17px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.stacklabs span{position:absolute;top:0;white-space:nowrap}
+.stack{display:flex;gap:2px;height:28px;border-radius:4px;overflow:hidden}
+.stack div{display:flex;align-items:center;padding-left:8px;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:3px;cursor:default}
+.legend{display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:4px;font-size:13px;color:var(--ink2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend b{color:var(--ink)}
+.moved{font-size:13.5px;margin-top:5px;padding-top:5px;border-top:1px solid var(--line2);line-height:1.4;color:var(--ink2)}
+.moved b{color:var(--ink)}
+.quiet{font-size:13.5px;color:var(--ink2);margin-top:5px;padding-top:5px;border-top:1px solid var(--line2);line-height:1.4}
+/* compare strip */
+.cmp{padding:6px 14px 7px}
+.cmp-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cmp-h h2{font-size:15px;font-weight:600;color:var(--ink)}
+.cmp-h .btns{gap:12px}
+.btn.sm{min-height:32px;padding:0 12px;font-size:14px}
+.cmp-cells{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:6px;border-top:1px solid var(--line2)}
+.cc{padding:4px 10px 0;min-width:0}
+.cc+.cc{border-left:1px solid var(--line2)}
+.cc:first-child{padding-left:0}
+.cc .ck{font-size:13px;color:var(--ink2);line-height:1.3}
+.cc .cv{font-size:17px;font-weight:600;color:var(--navy);white-space:nowrap;line-height:1.3}
+.cc .cv .from{color:var(--ink2);font-weight:400}
+.cc .cd{font-size:13.5px;line-height:1.3;white-space:nowrap}
+.cc .cd.nc{color:var(--ink3)}
+/* optimiser on layer 1 */
+.opt1{padding:7px 14px 8px}
+.opt-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.opt-top h2{margin-right:auto}
+.tiers{display:flex;flex-wrap:wrap;gap:6px}
+.tiers .chip{min-height:32px;font-size:14px;padding:0 9px;min-width:0}
+.floors{font-size:13px;color:var(--ink2);margin-top:5px;line-height:1.4}
+.floors b{color:var(--ink)}
+.optres{margin-top:8px;border-left:3px solid var(--navy);background:var(--box);border-radius:0 var(--r) var(--r) 0;padding:7px 12px;font-size:14.5px;line-height:1.45}
+.optres p+p{margin-top:2px}
+.optres .big{font-size:16.5px;font-weight:600;color:var(--navy)}
+.optres .btns{margin-top:2px;flex-wrap:wrap;gap:4px 12px}
+.optres .btns p{flex:1 1 300px}
+
+/* ---------- tooltip & provenance ---------- */
+.q{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink2);font-size:14px;font-weight:600;cursor:help;flex:none;line-height:1;padding:0;vertical-align:middle;position:relative}
+.q::before{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+.q:hover{border-color:var(--navy);color:var(--navy)}
+.prov{border-bottom:1px dotted var(--ink3);cursor:help}
+.prov:hover{border-bottom-style:solid}
+#tip{position:fixed;z-index:60;max-width:330px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;font-size:14.5px;line-height:1.45;box-shadow:0 6px 24px rgba(16,32,48,.14);display:none}
+#tip.show{display:block}
+#tip .tk{display:inline-block;margin-bottom:4px}
+.badge{display:inline-block;font-size:12.5px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:4px;border:1px solid var(--line);white-space:nowrap;color:var(--ink2);background:var(--box)}
+.badge.jsl{color:var(--navy);border-color:var(--navyline);background:var(--navytint)}
+.badge.lit{color:var(--ink);border-color:var(--line);background:var(--surface)}
+.badge.asm{color:var(--ink2);border-style:dashed;background:var(--surface)}
+.badge.mod{color:var(--ink2)}
+
+/* ---------- mini summary ---------- */
+#mini{position:fixed;top:0;left:0;right:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line);transform:translateY(-110%);transition:transform .18s ease;visibility:hidden;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+#mini.show{transform:none;visibility:visible}
+#mini .wrap{display:flex;align-items:center;gap:28px;min-height:54px}
+#mini .mi{display:flex;flex-direction:column;line-height:1.2}
+#mini .mi span{font-size:14px;color:var(--ink2)}
+#mini .mi b{font-size:19px;color:var(--navy)}
+#mini .mi.m b{color:var(--money)}
+#mini .ctx{margin-left:auto;font-size:14px;color:var(--ink2);text-align:right}
+#mini a{font-size:14px}
+
+/* ---------- details ---------- */
+.details{margin-top:44px}
+.dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:10px}
+.dhead h2{font-size:22px;font-weight:600;color:var(--navy)}
+.dhead p{font-size:15.5px;color:var(--ink2)}
+.folds{border-top:1px solid var(--line)}
+.fold{border-bottom:1px solid var(--line)}
+.fold h3{margin:0;font-size:inherit;font-weight:inherit}
+.fbtn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left;background:none;border:0;padding:16px 8px;cursor:pointer}
+.fbtn:hover{background:var(--hover)}
+.fbtn b{display:block;font-size:18.5px;color:var(--navy)}
+.fbtn span.t{display:block;font-size:15px;color:var(--ink2);margin-top:1px}
+.fbody{padding:4px 8px 28px}
+.fbody[hidden]{display:none}
+.fbody>*+*,.fbody>[id^=fx-]>*+*{margin-top:16px}
+.fbody h4{font-size:16px;font-weight:600;color:var(--ink);margin-top:24px}
+.lead{font-size:16.5px;max-width:82ch}
+.note{font-size:14.5px;color:var(--ink2);max-width:92ch;line-height:1.5}
+.note b{color:var(--ink)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+.cols>*{min-width:0}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:var(--surface)}
+.card .ck{font-size:14.5px;color:var(--ink2)}
+.card .cv{font-size:32px;font-weight:600;color:var(--navy);line-height:1.15;margin-top:2px}
+.card .cv small{font-size:15px;font-weight:400;color:var(--ink2)}
+.card.m{background:var(--moneytint);border-color:var(--moneyline)}
+.card.m .cv{color:var(--money)}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{font-size:14.5px;font-weight:600;color:var(--ink2);text-align:right;padding:9px 12px;background:var(--thbg);border-bottom:1px solid var(--line);vertical-align:bottom}
+.tbl td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line2);vertical-align:top}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td.l,.tbl th.l{text-align:left}
+.tbl tr.hl td{background:var(--moneytint)}
+.tbl .mcol{color:var(--money);font-weight:600}
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{min-height:44px;padding:0 18px;border-radius:var(--r);border:1px solid var(--navy);background:var(--navy);color:var(--bg);font-size:16px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--navy2);border-color:var(--navy2)}
+.btn.sec{background:var(--surface);color:var(--navy);border-color:var(--line)}
+.btn.sec:hover{background:var(--hover);border-color:var(--navyline)}
+.inl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15.5px}
+.inl input{width:92px;height:44px;border:1px solid var(--line);border-radius:var(--r);padding:0 10px;font-size:17px;font-weight:600;text-align:right;color:var(--navy);background:var(--surface)}
+.result{border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;background:var(--box)}
+.result.warn{border-left-color:var(--bad)}
+.result .big{font-size:22px;font-weight:600;color:var(--navy);line-height:1.3}
+.result.warn .big{color:var(--bad)}
+.pills{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:15px;color:var(--ink2)}
+.pills b{color:var(--ink)}
+.pass{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:4px;background:var(--goodtint);color:var(--good);border:1px solid var(--good)}
+.fail{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:4px;background:var(--badtint);color:var(--bad);border:1px solid var(--bad)}
+.formula{font-family:var(--mono);font-size:14px;line-height:1.75;background:var(--box);border:1px solid var(--line2);border-radius:var(--r);padding:14px 16px;overflow-x:auto;white-space:pre}
+.rules{list-style:none}
+.rules li{padding:9px 0;border-bottom:1px solid var(--line2);font-size:15.5px}
+.rules li b{color:var(--navy)}
+.plain{padding-left:20px}
+.plain li{margin:6px 0;font-size:15.5px;max-width:92ch}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;flex-wrap:wrap}
+.seg2 button{min-height:40px;padding:0 14px;border:0;background:var(--surface);font-size:15px;cursor:pointer}
+.seg2 button+button{border-left:1px solid var(--line)}
+.seg2 button[aria-pressed="true"]{background:var(--navy);color:var(--bg);font-weight:600}
+/* horizontal bar rows (sensitivity, waterfall, eol) */
+.hbars{display:grid;gap:2px}
+.hrow{display:grid;grid-template-columns:minmax(150px,240px) minmax(0,1fr) 84px;gap:14px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line2);font-size:15px}
+.hrow .tr{position:relative;height:18px}
+.hrow .bar{position:absolute;top:0;bottom:0;border-radius:3px;min-width:2px}
+.hrow .n{text-align:right;font-weight:600}
+.hrow.tot .bar{background:var(--navy)}
+.hrow.tot{font-weight:600}
+.hrow .zero{color:var(--ink3);font-weight:400}
+.axisnote{font-size:13.5px;color:var(--ink3);margin-top:6px}
+.prog{height:10px;border-radius:5px;background:var(--line2);position:relative;overflow:hidden;max-width:520px}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:5px}
+svg text{font-family:var(--font)}
+.chart{width:100%;max-width:760px}
+.banner{border:1px solid var(--moneyline);background:var(--moneytint);border-radius:var(--r);padding:10px 14px;font-size:15px;font-weight:600;color:var(--money)}
+.tscroll{overflow-x:auto;max-width:100%}
+.tbl td.l small,.tbl small{font-size:13px;color:var(--ink3)}
+.rloc{color:var(--ink3)}
+.rloc .n{font-weight:400;font-size:13.5px;text-align:right}
+
+footer{margin-top:56px;border-top:1px solid var(--line);padding:22px 0 40px;font-size:14.5px;color:var(--ink2);line-height:1.6}
+footer b{color:var(--ink)}
+footer .links{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+.print-only{display:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1260px){
+  .grp.scn-g{flex-basis:100%}
+  .grp.scn-g+.grp{border-left:0}
+  .grp.scn-g{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line2)}
+}
+@media (max-width:1080px){
+  .layer1{grid-template-columns:minmax(0,1fr)}
+  .heroes{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .results{position:static}
+  .cols{grid-template-columns:1fr}
+  .setup{padding:4px 0}
+  .grp{flex-basis:100%!important;padding:12px 16px}
+  .grp+.grp{border-left:0;border-top:1px solid var(--line2)}
+  .grp.scn-g{margin:0;padding-bottom:12px;border-bottom:0}
+  .toplinks .hide-m{display:none}
+}
+@media (max-width:640px){
+  h1{font-size:23px}
+  .intro p{font-size:16px}
+  .btnrow .scn{flex:1 1 100%;text-align:left}
+  .levers{padding:2px 16px}
+  .lever-top{flex-wrap:wrap}
+  .heroes{grid-template-columns:1fr}
+  .hero .hv{font-size:40px}
+  .hero.money .hv{font-size:36px}
+  .cmp-cells{grid-template-columns:1fr 1fr}
+  .cc,.cc:first-child{padding:6px 8px 4px 0;border-left:0!important;border-bottom:1px solid var(--line2)}
+  .cc:nth-child(even){padding-left:10px;border-left:1px solid var(--line2)!important}
+  .cc:last-child{grid-column:1/-1;border-bottom:0}
+  .cc .cv{font-size:17px}
+  .opt-top h2{flex-basis:100%}
+  .tiers{flex-basis:100%}
+  .tiers .chip{flex:1 1 auto}
+  .opt-top .btn{flex:1 1 100%}
+  .cmp-h .btns{width:100%}
+  .more-body{padding:4px 16px 14px}
+  .numfield{grid-template-columns:1fr}
+  .hrow{grid-template-columns:minmax(0,1fr) 70px;gap:4px 10px}
+  .hrow .tr{grid-column:1/-1;grid-row:2}
+  .rtable thead{display:none}
+  .rtable,.rtable tbody{display:block}
+  .rtable tr{display:block;border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;padding:6px 14px}
+  .rtable tr.hl{background:var(--moneytint)}
+  .rtable td{display:flex;justify-content:space-between;gap:12px;border:0;padding:5px 0;text-align:right}
+  .rtable tr.hl td{background:transparent}
+  .rtable td::before{content:attr(data-l);color:var(--ink2);font-size:14.5px;text-align:left;font-weight:400}
+  .rtable td:first-child{display:block;text-align:left;font-weight:600;color:var(--navy);border-bottom:1px solid var(--line2);padding-bottom:6px}
+  .rtable td:first-child::before{content:none}
+  .formula{white-space:pre-wrap;font-size:13px;overflow-x:visible}
+  .rtable td.l{text-align:right}
+  #mini .wrap{gap:14px}
+  #mini .ctx{display:none}
+  #mini .mi b{font-size:16.5px}
+  .fbtn b{font-size:17px}
+  .stp{width:44px;height:44px}
+  .numwrap{height:44px}
+  .numfield input{height:44px}
+  footer{font-size:15px}
+  footer .links a{padding:6px 0;display:inline-block}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- print: one clean page ---------- */
+@media print{
+  @page{size:A4;margin:12mm}
+  :root{--bg:#fff;--ink:#111;--ink2:#444;--navy:#123f63;--money:#6e4700;--line:#bbb;--line2:#ddd}
+  body{font-size:10pt;line-height:1.4;background:#fff;color:#111}
+  body>*:not(#printSheet){display:none!important}
+  #printSheet{display:block!important}
+  #printSheet h1{font-size:17pt;color:#123f63}
+  #printSheet h2{font-size:11pt;color:#123f63;margin:10pt 0 4pt;border-bottom:1px solid #bbb;padding-bottom:2pt;text-transform:uppercase;letter-spacing:.04em}
+  #printSheet .sub{color:#444;margin-top:2pt}
+  #printSheet table{width:100%;border-collapse:collapse}
+  #printSheet td{padding:1.5pt 4pt;border-bottom:1px solid #e3e3e3;vertical-align:top}
+  #printSheet p{margin:1.5pt 0}
+  #printSheet td:nth-child(even){font-weight:600}
+  #printSheet .ph{display:flex;gap:10pt}
+  #printSheet .ph div{flex:1;border:1px solid #bbb;border-radius:4pt;padding:4pt 8pt}
+  #printSheet .ph span{display:block;color:#444;font-size:9.5pt}
+  #printSheet .ph b{font-size:18pt;color:#123f63}
+  #printSheet .ph .m b{color:#6e4700}
+  #printSheet ul{padding-left:14pt}
+  #printSheet li{margin:1.5pt 0}
+  #printSheet .foot{margin-top:10pt;font-size:9pt;color:#555;border-top:1px solid #bbb;padding-top:4pt}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#levers">Skip to the levers</a>
+
+<div id="mini" aria-hidden="true">
+  <div class="wrap">
+    <div class="mi"><span>Carbon footprint</span><b id="mn-tot">–</b></div>
+    <div class="mi"><span>Energy</span><b id="mn-gj">–</b></div>
+    <div class="mi m"><span>Verified data, worth to JSL</span><b id="mn-inr">–</b></div>
+    <div class="ctx"><span id="mn-ctx"></span><br><a href="#top" tabindex="-1">Back to the levers</a></div>
+  </div>
+</div>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <div class="brand">StainlessCarbon</div>
+    <div class="toplinks">
+      <span class="hide-m">Calibrated to Jindal Stainless FY26 results &middot; <button type="button" class="linkbtn" data-open="checks">see the checks</button></span>
+      <button type="button" class="linkbtn" id="printTop">Print summary</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <h1>Carbon and energy calculator for Jindal Stainless steel</h1>
+    <p>Pick a scenario, grade and plant, move the levers, compare with FY26, and find the lowest practical mix.</p>
+  </div>
+
+  <!-- ===== LAYER 1: setup strip ===== -->
+  <div class="setup" role="group" aria-label="Scenario, grade and plant">
+    <div class="grp scn-g">
+      <div class="glabel" id="lab-scn">Scenario <span class="custom-tag" id="customTag" hidden>Your own settings</span></div>
+      <div class="btnrow" id="scenarios" role="group" aria-labelledby="lab-scn"></div>
+      <div class="gcap" id="scnCap"></div>
+    </div>
+    <div class="grp grade-g">
+      <div class="glabel" id="lab-grade">Steel grade</div>
+      <div class="btnrow" id="grades" role="group" aria-labelledby="lab-grade"></div>
+      <div class="gcap" id="gradeCap"></div>
+    </div>
+    <div class="grp plant-g">
+      <div class="glabel" id="lab-plant">Plant</div>
+      <div class="btnrow" id="plants" role="group" aria-labelledby="lab-plant"></div>
+      <div class="gcap" id="plantCap"></div>
+    </div>
+  </div>
+
+  <div class="layer1">
+    <!-- levers column -->
+    <div>
+      <div class="panel levers" id="levers" role="group" aria-label="Main levers"></div>
+      <div class="warns" id="warns" hidden role="status"></div>
+      <div class="more">
+        <button type="button" class="more-btn" id="moreBtn" aria-expanded="false" aria-controls="moreBody">
+          <span><b>More levers</b><span class="t">Nickel, ferro-chrome, biochar, iron units, EU data rules, EU volume and quota, ₹ per €, coil price</span></span>
+          <i class="chev" aria-hidden="true"></i>
+        </button>
+        <div class="more-body" id="moreBody" hidden></div>
+      </div>
+    </div>
+
+    <!-- results column -->
+    <div class="results" id="results">
+      <div class="heroes" id="heroes">
+        <div class="hero">
+          <div class="hk">Carbon footprint <button type="button" class="q" aria-label="What does carbon footprint include?" data-tip="Scopes 1, 2 and 3 on the boundary Jindal Stainless discloses: our furnaces and fuels, our coal power plant, the power we buy, the ferro-alloys and nickel we buy, and JSL's downstream categories (processing and end of life of sold products). The cradle-to-gate (A1–A3) estimate removes about 0.12 t of that downstream share.">?</button></div>
+          <div class="hv" id="h-tot">–</div>
+          <div class="hu" id="h-tot-u">tonnes of CO&#8322; per tonne of steel</div>
+          <div class="hc" id="h-tot-c"></div>
+          <div class="hc" id="h-tot-c2"></div>
+        </div>
+        <div class="hero">
+          <div class="hk">Energy <button type="button" class="q" aria-label="What does energy include?" data-tip="All energy per tonne, counted the way JSL's BRSR report does: electricity bought at 3.6 GJ/MWh, electricity from our own coal plant at the coal it burns (10.47 GJ/MWh), plus furnace and reheating fuels. Clean fuel changes the carbon, not the energy.">?</button></div>
+          <div class="hv" id="h-gj">–</div>
+          <div class="hu" id="h-gj-u">gigajoules per tonne of steel</div>
+          <div class="hc" id="h-gj-c"></div>
+          <div class="hc" id="h-gj-c2"></div>
+        </div>
+        <div class="hero money">
+          <div class="hk">What verified data is worth to JSL <button type="button" class="q" aria-label="What is verified data worth to JSL?" data-tip="From 2026 the EU charges importers for the carbon in steel (CBAM). With verified plant data the charge follows our real emissions; without it the EU applies a high default for India. This card counts only what reaches JSL, on tonnes inside the EU quota: Iberjindal's own imports, plus the share of other buyers' saving JSL wins back in price, less the verifier's fees.">?</button></div>
+          <div class="hv" id="h-inr">–</div>
+          <div class="hu" id="h-inr-u">a year, on 2026 shipments</div>
+          <div id="h-inr-c"></div>
+        </div>
+      </div>
+
+      <div class="panel cmp" id="cmp" role="group" aria-labelledby="cmpH">
+        <div class="cmp-h"><h2 id="cmpH">FY26 today &rarr; your scenario</h2>
+          <div class="btns"><button type="button" class="linkbtn" id="unpinBtn" hidden>Compare with FY26 again</button><button type="button" class="btn sec sm" id="pinBtn">Pin current as baseline</button></div></div>
+        <div class="cmp-cells" id="cmpCells"></div>
+        <p class="moved" id="moved"></p>
+      </div>
+
+      <div class="panel opt1" id="opt1">
+        <div class="opt-top"><h2 id="optH">Lowest practical mix</h2>
+          <div class="tiers" id="tiers" role="group" aria-labelledby="optH"></div>
+          <button type="button" class="btn sm" id="optGo">Find the lowest practical mix</button></div>
+        <p class="floors" id="floors"></p>
+        <div id="opt1Out" aria-live="polite"></div>
+      </div>
+
+      <div class="panel split">
+        <h2>Where the carbon comes from</h2>
+        <div class="stackwrap"><div class="stacklabs" id="stacklabs" aria-hidden="true"></div><div class="stack" id="stack" role="img" aria-label="Carbon by scope"></div></div>
+        <div class="legend" id="legend"></div>
+        <p class="quiet" id="quiet"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sr" aria-live="polite" id="live"></div>
+
+  <!-- ===== LAYER 3: details ===== -->
+  <section class="details" aria-labelledby="dh">
+    <div class="dhead">
+      <div><h2 id="dh">Details</h2><p class="prose">Each section opens on its own. The explanations, working and sources behind the numbers above.</p></div>
+      <button type="button" class="btn sec" id="allBtn">Open all sections</button>
+    </div>
+    <div class="folds" id="folds"></div>
+  </section>
+
+  <footer>
+    <b>Stainless Spark &ndash; Engineering Innovation, Building Futures</b> &middot; Jindal Stainless case competition &middot; PS-3 Carbon and Energy Calculator.
+    <div class="links">
+      <a href="https://grv-io.github.io/sc-346a9f98/website/">Live site</a>
+      <a href="../appendix.pdf">Appendix (PDF)</a>
+    </div>
+    <p class="prose" style="margin-top:8px">Independent case-competition prototype built on Jindal Stainless public disclosures &mdash; not an official Jindal Stainless product. Figures are modelled and indicative; ranges and factors carry the uncertainties listed under &ldquo;Assumptions and limitations&rdquo;.</p>
+  </footer>
+</main>
+
+<div id="tip" role="tooltip"></div>
+<div id="printSheet" class="print-only"></div>
+
+<script src="model.js"></script>
+<script src="business.js"></script>
+<script>
+/* ---------- STUB: placeholder numbers, same shapes as model.js, so this page renders if model.js is missing. model.js replaces all of it. ---------- */
+if(!window.StainlessCarbon){(function(){
+ const G={'304':{label:'304 (austenitic)',pren:19,massFactor:1,scrapCap:80,fecr_kg:300,ni_kg:80,femo_kg:0,femn_kg:0},'316':{label:'316 (Mo-austenitic)',pren:24,massFactor:1,scrapCap:75,fecr_kg:283,ni_kg:100,femo_kg:29,femn_kg:0},'430':{label:'430 (ferritic)',pren:17,massFactor:1,scrapCap:60,fecr_kg:283,ni_kg:0,femo_kg:0,femn_kg:0},'2205':{label:'2205 (duplex)',pren:35,massFactor:.6,scrapCap:60,fecr_kg:367,ni_kg:50,femo_kg:43,femn_kg:0},'J4':{label:'J4 (200-series)',pren:15,massFactor:1,scrapCap:70,fecr_kg:250,ni_kg:10,femo_kg:0,femn_kg:120}};
+ const P={company:{label:'Company',s12_disclosed:1.76,k:1},jajpur:{label:'Jajpur',s12_disclosed:2.31,k:1.31},hisar:{label:'Hisar',s12_disclosed:0.74,k:.42}};
+ const L={scrap:70,npi:58,re:47,cf:2,fecr:'captive',biochar:0,feUnits:'scrap',npiEF:69,safTech:'open'};
+ const PR={fy26:{label:'FY26',...L},fy30:{label:'FY30',...L,scrap:75,re:75,cf:10},maxgreen:{label:'Max',scrap:80,npi:0,re:90,cf:80,fecr:'captive',biochar:30,feUnits:'scrap',npiEF:30,safTech:'closed'}};
+ const D={fy22:1.98,fy23:2.08,fy24:2.15,fy25:1.85,fy26:1.76,target_fy35:0.99};
+ const Y=[[2026,.975,75,7.14],[2027,.95,89,7.79],[2028,.9,95,8.44],[2029,.775,100,8.44],[2030,.515,109,8.44]];
+ const LAB={scrap:'Scrap',npi:'NPI share',npiEF:'NPI power',feUnits:'Fe units',fecr:'FeCr',biochar:'Biochar',safTech:'SAF',re:'RE',cf:'Clean fuel',captiveLF:'Captive LF'};
+ const c=x=>{const g=G[x.grade],k=P[x.plant].k,v=1-x.scrap/100,re=x.re/100,cf=x.cf/100,ni=g.ni_kg?x.npi/100:0,lf=(x.captiveLF??.7)/.7;
+  const efF={captive:3.9-0.05*x.biochar-(x.safTech==='closed'?.5:x.safTech==='prereduction'?.8:0),odisha:5.65,imported:2.3}[x.fecr],efN=13+ni*(x.npiEF-13+(x.feUnits==='pigiron'?15:0));
+  const cap=.305*lf*(1-.4*re),dir=.12+1.108*(1-.4*cf),s1=k*(dir+cap),s2=k*1.1*(1-re)*.5*.71,s3=v*(g.fecr_kg*efF+g.ni_kg*efN+g.femo_kg*6.5+g.femn_kg*3.5)/1000+.05;
+  const prec=v*(g.fecr_kg*(x.fecr==='captive'?0:1.5)+g.ni_kg*ni*20)/1000,eg=3.6*1.1*(re+.5*(1-re))+10.47*1.1*.5*(1-re),w=[];
+  if(x.scrap>g.scrapCap)w.push('Scrap is above the '+g.scrapCap+'% limit for '+x.grade+'.');
+  return{s1,s2,s3,s12:s1+s2,total:s1+s2+s3,energy_gj:eg+10.47,energy_split:{elec_gj:eg,thermal_gj:10.47},cbamE:k*dir+prec,cbamE_conservative:s1,cbamInstallation:x.plant==='company'?'jajpur':x.plant,footprint_eol:(s1+s2+s3)*.77,warnings:w,
+   breakdown:{captivePower:k*cap,reheat:k*dir,grid:s2,fecr:v*g.fecr_kg*efF/1000,ni:v*g.ni_kg*efN/1000,femo:v*g.femo_kg*6.5/1000,femn:v*g.femn_kg*3.5/1000,consumables:.05}}};
+ const cost=(E,y,b=.268)=>Math.max(0,E-b*y[1])*y[2], E=s=>c({...s,plant:s.plant==='company'?'jajpur':s.plant}).cbamE;
+ const mv=[['scrap',x=>({scrap:Math.min(G[x.grade].scrapCap,x.scrap+10)})],['npi',x=>({npi:Math.max(0,x.npi-10)})],['re',x=>({re:Math.min(90,x.re+10)})],['cf',x=>({cf:Math.min(80,x.cf+10)})],['fecr',()=>({fecr:'imported'}),'imported']];
+ window.StainlessCarbon={GRADES:G,PLANTS:P,PRESETS:PR,DISCLOSED:D,__stub:true,
+  defaultState:()=>({grade:'304',plant:'company',...L,captiveLF:.7,benchmarkB:.268,exportTonnes:40000,fx:90,cifEur:3000}),compute:c,
+  sensitivity:s=>{const b=c(s);return mv.map(([l,f,to])=>{const x={...s,...f(s)},m=c(x);return{lever:l,label:LAB[l],to,delta_total:m.total-b.total,delta_s12:m.s12-b.s12,delta_cbam:E(x)-E(s)}})},
+  waterfall:(a,b)=>{let x={...a};const o=[];for(const k in LAB){if(a[k]!==b[k]){const t=c(x).total;x={...x,[k]:b[k]};o.push({lever:k,label:LAB[k],from:a[k],to:b[k],delta:c(x).total-t})}}return o},
+  goalSeek:(s,t)=>{for(let re=s.re;re<=90;re+=5)for(let cf=s.cf;cf<=80;cf+=5){const x={...s,re,cf};if(c(x).s12<=t)return{reachable:true,state:x,floor:t,note:''}}const f={...s,re:90,cf:80};return{reachable:false,state:f,floor:c(f).s12,note:'Stub: renewables and clean fuel alone floor above the target.'}},
+  optimize:(s,o)=>{const x={...s,...PR.maxgreen,scrap:G[s.grade].scrapCap},b=c(s).total;const steps=[['re',15],['npi',36],['scrap',36.5],['cf',37]].map(([k,u])=>{const a=b-c({...s,[k]:x[k]}).total;return{lever:k,label:LAB[k],from:s[k],to:x[k],abatement:a,usd_per_tco2:u,usd_per_t:a*u}}).filter(r=>r.abatement>1e-4);return{state:x,cost_usd_per_t:steps.reduce((a,r)=>a+r.usd_per_t,0),steps,floor:c(x).total,reachable:o.mode!=='cheapestToTarget'||c(x).total<=o.target}},
+  cbamTable:s=>{const e=E(s);return Y.map(y=>({year:y[0],price:y[2],freeAlloc:y[1],defaultE:y[3],defaultCost:cost(y[3],y,s.benchmarkB),verifiedE:e,verifiedCost:cost(e,y),saving:cost(y[3],y,s.benchmarkB)-cost(e,y)}))},
+  money:(s,o)=>{const e=E(s),cr=x=>x*o.exportTonnes*o.fx/1e7,sv=(y,b)=>cost(y[3],y,b)-cost(e,y),v=cost(e,Y[0]),d=cost(7.14,Y[0],s.benchmarkB);return{installation:s.plant==='company'?'jajpur':s.plant,saving2026_inr_cr:{low:cr(sv(Y[0],1.27)),high:cr(sv(Y[0],.268))},saving2030_inr_cr:{low:cr(sv(Y[4],1.27)),high:cr(sv(Y[4],.268))},landedVerified:o.cifEur+v,landedDefault:o.cifEur+d,cbamShareOfPrice:{verified:v/(o.cifEur+v),default:d/(o.cifEur+d)}}},
+  validate:()=>{const m=c({grade:'304',plant:'company',...L,captiveLF:.7});return[{check:'FY26 Scope 1+2 (stub)',expected:'1.76 ±2%',got:m.s12,pass:Math.abs(m.s12/1.76-1)<.02},{check:'FY26 total (stub)',expected:'3.03 ±3%',got:m.total,pass:Math.abs(m.total/3.03-1)<.03}]}};
+})()}
+</script>
+<script>
+(function(){
+'use strict';
+const M = window.StainlessCarbon;
+
+/* ================= helpers ================= */
+const el = id => document.getElementById(id);
+const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ok = n => typeof n === 'number' && isFinite(n);
+const f2 = n => ok(n) ? n.toFixed(2) : '–';
+const f1 = n => ok(n) ? n.toFixed(1) : '–';
+const inr = n => ok(n) ? Math.round(n).toLocaleString('en-IN') : '–';
+const eur = n => ok(n) ? '€' + Math.round(n).toLocaleString('en-GB') : '–';
+const neg = s => String(s).replace(/^-/, '−');
+const sgn2 = n => !ok(n) ? '–' : (n > 0.0049 ? '+' : n < -0.0049 ? '−' : '') + Math.abs(n).toFixed(2);
+const pct = n => ok(n) ? (n <= 1 ? n*100 : n) : NaN;
+const human = k => String(k).replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/^./, c => c.toUpperCase());
+function rng(v){
+  if (v == null) return [NaN, NaN];
+  if (typeof v === 'number') return [v, v];
+  if (Array.isArray(v)) return [v[0], v[1]];
+  return [v.lo ?? v.low ?? v.min, v.hi ?? v.high ?? v.max];
+}
+function crTxt(v){
+  const [a, b] = rng(v);
+  if (!ok(a)) return '–';
+  const lo = Math.min(a, b), hi = Math.max(a, b);
+  return Math.round(lo) === Math.round(hi) ? `₹${inr(lo)} Cr` : `₹${inr(lo)}–${inr(hi)} Cr`;
+}
+function tipAttr(kind, text){ return `class="prov" tabindex="0" data-kind="${kind}" data-tip="${esc(text)}"`; }
+const prov = (kind, val, text) => `<span ${tipAttr(kind, text)}>${val}</span>`;
+// Strip internal project references from any model-supplied note before it reaches the page.
+const clean = t => String(t == null ? '' : t)
+  .replace(/\s*\((?:see )?(?:MODEL_NOTES|research\/|IMPROVEMENT_SCOPE)[^)]*\)/g, '')
+  .replace(/\s*\b(?:per|via) (?:our|team) research\b;?/gi, '')
+  .replace(/\s*[—-]?\s*verify the number before external use\.?/gi, '')
+  .replace(/\bRuling\s+\w+(?:\s+v\d+)?\b/gi, '').replace(/\bresearch\/\d+\b/gi, '')
+  .replace(/IMPROVEMENT_SCOPE(?:\.md)?(?:\s*§\s*\d+)?/g, '').replace(/\bMODEL_NOTES(?:\.md)?(?:\s*§\s*[\d.]+)?/g, '')
+  .replace(/\bv2 tool\b/gi, 'earlier version').replace(/\bfour-review audit\b/gi, 'review')
+  .replace(/\s{2,}/g, ' ').replace(/\s+([.,;)])/g, '$1').trim();
+const Q = (label, text) => `<button type="button" class="q" aria-label="${esc(label)}" data-tip="${esc(text)}">?</button>`;
+
+/* ================= copy & config ================= */
+const PRESET_UI = {
+  fy26:     {t:'FY26 today',       c:'Reproduces Jindal Stainless’s reported FY26 results.'},
+  fy30:     {t:'JSL roadmap FY30', c:'Illustrative FY30 settings inspired by JSL’s roadmap (our inputs, not a JSL target).'},
+  maxgreen: {t:'Theoretical maximum', c:'Every lever at its ceiling, including 80% clean fuel (mostly hydrogen). A bound, not a plan.'}
+};
+const PLANT_ORDER = ['jajpur','hisar','indonesia_slab','company'];
+const PLANT_UI = {
+  jajpur:  {t:'Jajpur',          c:'Odisha. Own coal power plant and ferro-chrome furnaces.'},
+  hisar:   {t:'Hisar',           c:'Haryana. No captive coal power.'},
+  indonesia_slab: {t:'Indonesia JV slab', long:'Indonesia JV slab (rolled in India)', c:'Slab melted at the Indonesian melt shop, rolled to coil at Jajpur. Route figures are estimates.'},
+  company: {t:'Company average', c:'Jajpur and Hisar, as JSL reports. The EU charge is filed per plant.'}
+};
+const TIER_UI = {practical:'Practical today', stretch:'Stretch 2030', theoretical:'Theoretical maximum'};
+const Biz = window.StainlessCarbonBiz || null;
+const GRADE_UI = {
+  '304':'The everyday grade: kitchens, tanks, tubes.',
+  '316':'Adds molybdenum for sea-water and chemical resistance.',
+  '430':'Nickel-free: appliances, trims, auto exhaust.',
+  '2205':'Duplex: about twice the strength of 304.',
+  'J4':'Jindal’s 200-series: low nickel, with manganese and copper.'
+};
+const SLIDERS = {
+  scrap:  {label:'Recycled scrap in the furnace charge', short:'scrap share', help:'More scrap means less new ferro-chrome and nickel to mine and smelt.', min:40, max:80, bstep:1},
+  re:     {label:'Renewable share of purchased power', short:'renewable share of purchased power', help:'Wind, solar and hydro. Cuts Scope 2; the EU figure does not count electricity.', min:0, max:90, bstep:5},
+  captiveLF:{label:'Captive coal plant load', short:'captive coal plant load', help:'Running the coal plant less is the biggest Scope 1 lever; it does not change the EU figure.', min:0, max:100, bstep:5, scale:100},
+  cf:     {label:'Clean fuel in furnaces and reheating', short:'clean fuel share', help:'Bio-oil, then hydrogen, in place of coal and furnace oil.', min:0, max:80, bstep:5},
+  npi:    {label:'Nickel from nickel pig iron (NPI)', short:'NPI share', help:'NPI is cheaper than refined nickel but far more carbon-heavy.', min:0, max:100, bstep:5},
+  fecrCaptiveShare:{label:'Ferro-chrome from our own furnaces', short:'own ferro-chrome share', help:'The rest is bought from Odisha smelters. Our furnaces make about 250 kt a year, so at low scrap they cannot cover it all. Left alone, it follows what the furnaces can supply.', min:0, max:100, bstep:5, scale:100, nullable:true},
+  biochar:{label:'Biochar in our ferro-chrome furnaces', short:'biochar share', help:'Replaces part of the coke used to smelt ferro-chrome. Capped at 30%.', min:0, max:30, bstep:5},
+  quotaShare:{label:'JSL’s share of India’s EU quota', short:'JSL share of the EU quota', help:'India’s 64,073 t a year of EU stainless-flat quota is shared by all Indian mills. Our assumption.', min:0, max:100, bstep:5, scale:100}
+};
+const LIM = M.LIMITS || {};
+if (LIM.reMax) SLIDERS.re.max = LIM.reMax;
+if (LIM.cfMax) SLIDERS.cf.max = LIM.cfMax;
+if (LIM.biocharMax) SLIDERS.biochar.max = LIM.biocharMax;
+const sc = k => (SLIDERS[k] && SLIDERS[k].scale) || 1;   // state value x scale = displayed percent
+const MAIN = ['scrap','cf'], ENERGY = ['re','captiveLF'];
+const CHOICES = {
+  precursorData:{label:'Data used for bought-in ferro-chrome and NPI in the EU figure', opts:[['verified','Supplier data'],['default','EU default values']], help:'If a supplier cannot give verified data, the EU default applies to that material. It moves the EU figure only, not the footprint.'},
+  basis:{label:'Show figures per tonne of', opts:[['crude','Crude steel (as JSL reports)'],['product','Cold-rolled coil (the EU good)']], help:'Coil = crude steel ÷ 0.90 yield (estimate). The EU figure is always per tonne of coil.'},
+  fecrAttribution:{label:'Power for our own ferro-chrome furnaces is counted at', opts:[['site','The Jajpur site mix (coal plant and bought power)'],['marginal','Bought power first']], help:'FY26 totals are the same either way; the rule changes how much a cut in electricity demand is worth.'},
+  npiEF:{label:'Where our NPI comes from', opts:[[69,'Coal-fired NPI (Indonesia)'],[30,'NPI smelted on hydro or renewable power']], help:'JSL holds 49% of the New Yaking NPI smelter; cleaner power there cuts NPI’s footprint by more than half.'},
+  fecr:{label:'Where our ferro-chrome comes from', opts:[['captive','Our own furnaces at Jajpur'],['odisha','Bought from Odisha smelters'],['imported','Imported low-carbon']], help:'Ferro-chrome is the biggest single source of carbon in the alloy chain.'},
+  safTech:{label:'Our ferro-chrome furnace technology', opts:[['open','Open furnace (today)'],['closed','Closed furnace with preheating'],['prereduction','Pre-reduction before smelting']], help:'Better furnaces use less electricity per tonne of ferro-chrome (3,950, 3,100 or 2,500 kWh). Applies to our own furnaces only.'},
+  feUnits:{label:'Iron that replaces NPI’s iron', opts:[['scrap','Mild-steel scrap'],['pigiron','Pig iron']], help:'Cutting NPI also removes the iron it brings; that iron has to come from somewhere.'}
+};
+const optVal = (k, str) => { const o = CHOICES[k].opts.find(x => String(x[0]) === str); return o ? o[0] : str; };
+const NUMS = {
+  exportTonnes:{label:'Steel we ship to the EU each year', unit:'tonnes', min:0, max:300000, step:5000, help:'Default 40,000 t: about JSL’s share of India’s 64,073 t a year EU stainless-flat quota, which all Indian mills share. Tonnes above the quota pay a 50% duty. Only JSL knows the real figure.', kind:'assumption'},
+  fx:{label:'Rupees per euro', unit:'₹ per €', min:60, max:150, step:1, help:'Used to convert the EU charge into rupees.', kind:'assumption'},
+  cifEur:{label:'Price of a coil delivered to the EU', unit:'€ per tonne', min:1000, max:6000, step:50, help:'CIF price, used for the landed-cost comparison.', kind:'assumption'}
+};
+const LEVER_LABEL = {scrap:'Scrap',re:'Renewable power',cf:'Clean fuel',npi:'Nickel from NPI',biochar:'Biochar',npiEF:'NPI power source',fecr:'Ferro-chrome source',safTech:'Ferro-chrome furnace',feUnits:'Iron units',captiveLF:'Coal plant load',fecrCaptiveShare:'Own ferro-chrome share',fecrMerchant:'Bought ferro-chrome from',indonesiaSlabE:'Indonesian slab value',grade:'Grade',plant:'Plant'};
+if (M.RANGES) for (const k in M.RANGES) if (NUMS[k]) { NUMS[k].min = M.RANGES[k][0]; NUMS[k].max = M.RANGES[k][1]; }
+const NONLEVER = new Set(['grade','plant','exportTonnes','fx','cifEur','benchmarkB','label','name','note','desc','description','scrapIntended','fecrAttribution','precursorData','basis','indonesiaSlabE','quotaShare','tier']);
+const G = M.GRADES, P = M.PLANTS, D = M.DISCLOSED || {};
+const EURUSD = 1.15;
+
+function fmtLever(k, v){
+  if (k === 'fecrCaptiveShare' && v == null) return 'automatic';
+  if (k === 'fecrMerchant') return ({odisha:'Odisha smelters', imported:'imported low-carbon'})[v] || String(v);
+  if (k === 'indonesiaSlabE') return v == null ? 'EU default' : f2(v) + ' t/t';
+  if (CHOICES[k]) { const o = CHOICES[k].opts.find(x => String(x[0]) === String(v)); return o ? o[1] : String(v); }
+  if (SLIDERS[k] && SLIDERS[k].scale && typeof v === 'number') v = Math.round(v * SLIDERS[k].scale);
+  if (typeof v === 'number') return (Number.isInteger(v) ? v : v.toFixed(1)) + '%';
+  return String(v);
+}
+function disc(y, field){
+  const v = D['fy'+y] ?? D[y];
+  if (v == null) return NaN;
+  if (typeof v === 'number') return field === 's12' ? v : NaN;
+  return v[field];
+}
+const AN = (M.ANCHOR && M.ANCHOR.fy26) || {};
+const FY26_TOTAL = ok(AN.total) ? AN.total : ok(disc(26,'total')) ? disc(26,'total') : 3.03;
+const FY26_GJ = ok(AN.energy_gj) ? AN.energy_gj : ok(disc(26,'energy_gj')) ? disc(26,'energy_gj') : 16.43;
+const FY22_S12 = ok(disc(22,'s12')) ? disc(22,'s12') : 1.98;
+const TARGET35 = (typeof D.target_fy35 === 'number' ? D.target_fy35 : (D.target_fy35 && D.target_fy35.s12)) || 0.99;
+const WORLD_AVG = 3.70;
+const plantS12 = p => (P[p] && ok(P[p].s12_disclosed)) ? P[p].s12_disclosed : (P[p] && ok(P[p].s12)) ? P[p].s12 : ({jajpur:2.31,hisar:0.74,company:1.76})[p];
+const plantName = p => (PLANT_UI[p] ? PLANT_UI[p].t : (P[p] && P[p].label) || p);
+const plantLong = p => (PLANT_UI[p] && PLANT_UI[p].long) || plantName(p);
+const isIndo = s => (s || state).plant === 'indonesia_slab';
+// the Indian installation whose EU figure / value applies (company view files Jajpur; Indonesian slab coil is kept off the EU book)
+const euInst = s => (s || state).plant === 'hisar' ? 'hisar' : 'jajpur';
+function unitPhrase(s){
+  s = s || state;
+  if (s.basis === 'product') return 'per tonne of cold-rolled coil';
+  return isIndo(s) ? 'per tonne of slab rolled in India' : 'per tonne of steel';
+}
+const crOne = n => !ok(n) ? '–' : (n < 0 ? '−' : '') + '₹' + (Math.abs(n) >= 100 ? inr(Math.abs(n)) : Math.abs(n).toFixed(1)) + ' Cr';
+// what verified data is worth to JSL (business layer), at this state's quota share
+function captured(s){
+  if (!Biz || !Biz.capturedValue) return null;
+  try { return Biz.capturedValue(s, {quotaShare: ok(s.quotaShare) ? s.quotaShare : undefined, exportInstallation: euInst(s)}); } catch(e){ return null; }
+}
+// per-tonne-of-coil view of a state (the EU good), reusing r when it is already on that basis
+const onCoil = (s, r) => (r && s.basis === 'product') ? r : M.compute({...s, basis:'product'});
+const gradeName = g => g;
+const gradeLong = g => (G[g] && G[g].label) || g;
+const capFor = g => (G[g] && ok(G[g].scrapCap)) ? G[g].scrapCap : 80;
+const maxOf = k => k === 'scrap' ? capFor(state.grade) : SLIDERS[k].max;
+
+/* ================= state ================= */
+let state = M.defaultState();
+const DEF = M.defaultState();
+if (!P[state.plant]) state.plant = Object.keys(P)[0];
+const LEVERS = Object.keys(state).filter(k => !NONLEVER.has(k));
+state.scrapIntended = state.scrap;   // the scrap share the user actually asked for, before any grade-cap clamp
+function presetLevers(key){
+  const p = M.PRESETS[key] || {}, o = {};
+  LEVERS.forEach(k => { if (!(k in p)) o[k] = DEF[k]; });   // hidden assumptions (captive load factor) return to default
+  for (const k in p) if (!NONLEVER.has(k) && k in state) o[k] = p[k];
+  // scrap is left uncapped here (intent, not the grade-clamped effective value) so a grade-cap clamp
+  // never masquerades as leaving the preset — see clampState() and activePreset().
+  return o;
+}
+function activePreset(){
+  return Object.keys(PRESET_UI).find(k => M.PRESETS[k] && Object.entries(presetLevers(k)).every(([kk, v]) => kk === 'scrap' ? state.scrapIntended === v : state[kk] === v)) || null;
+}
+let scenarioKey = activePreset() || 'fy26';
+let R = null, MONEY = null, CV = null, RC = null;
+let pinBase = null;            // {state, label} when the user pins a baseline; null = FY26 today
+let optTier = 'practical', optShown = false, OPT = null, optTimer = 0;
+const openFolds = new Set();
+
+function clampState(){
+  for (const k in SLIDERS) if (k in state && k !== 'scrap'){
+    if (SLIDERS[k].nullable && state[k] == null) continue;   // null = automatic
+    state[k] = Math.max(SLIDERS[k].min, Math.min(maxOf(k), +state[k] * sc(k))) / sc(k);
+  }
+  if ('indonesiaSlabE' in state && state.indonesiaSlabE != null){ const v = +state.indonesiaSlabE; state.indonesiaSlabE = ok(v) && v > 0 ? Math.min(15, v) : null; }
+  if ('scrap' in state){
+    if (state.scrapIntended == null) state.scrapIntended = state.scrap;
+    // Effective scrap = the user's intent, capped to the current grade's practical ceiling. Switching to a
+    // grade with a higher cap restores the intended value instead of leaving it stuck at the old clamp.
+    state.scrap = Math.max(SLIDERS.scrap.min, Math.min(capFor(state.grade), +state.scrapIntended));
+  }
+  for (const k in NUMS) if (k in state) state[k] = Math.max(NUMS[k].min, Math.min(NUMS[k].max, +state[k] || 0));
+}
+let raf = 0;
+function flush(){ if (raf){ cancelAnimationFrame(raf); raf = 0; render(); } }
+function setState(patch){
+  if ('scrap' in patch) state.scrapIntended = patch.scrap;   // record intent before Object.assign/clampState clamp it
+  Object.assign(state, patch); clampState(); if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); });
+}
+
+/* ================= build layer 1 ================= */
+function buildSetup(){
+  el('scenarios').innerHTML = Object.keys(PRESET_UI).filter(k => M.PRESETS[k]).map(k =>
+    `<button type="button" class="scn" data-preset="${k}" aria-pressed="false">${esc(PRESET_UI[k].t)}</button>`).join('');
+  el('grades').innerHTML = Object.keys(G).map(g =>
+    `<button type="button" class="chip" data-grade="${esc(g)}" aria-pressed="false" title="${esc(gradeLong(g))}">${esc(g)}</button>`).join('');
+  const plants = PLANT_ORDER.filter(p => P[p]).concat(Object.keys(P).filter(p => !PLANT_ORDER.includes(p)));
+  el('plants').innerHTML = plants.map(p =>
+    `<button type="button" class="chip" data-plant="${esc(p)}" aria-pressed="false" title="${esc(plantLong(p))}">${esc(plantName(p))}</button>`).join('');
+  el('tiers').innerHTML = Object.keys(TIER_UI).filter(t => !M.TIERS || M.TIERS[t]).map(t =>
+    `<button type="button" class="chip" data-tier="${t}" aria-pressed="${t === optTier}">${esc(TIER_UI[t])}</button>`).join('');
+}
+function sliderHTML(k){
+  const c = SLIDERS[k];
+  return `<div class="lever" id="lv-${k}">
+    <div class="lever-top">
+      <label class="lever-name" for="r-${k}">${esc(c.label)}</label>
+      <div class="stepper">
+        <button type="button" class="stp" data-k="${k}" data-d="-1" aria-label="Decrease ${c.short} by ${c.bstep}">&minus;</button>
+        <span class="numwrap"><input class="numin" id="n-${k}" data-k="${k}" type="text" inputmode="numeric" autocomplete="off" aria-label="${esc(c.short)}, percent" aria-describedby="h-${k}"><span class="unit">%</span></span>
+        <button type="button" class="stp" data-k="${k}" data-d="1" aria-label="Increase ${c.short} by ${c.bstep}">+</button>
+      </div>
+    </div>
+    <p class="lever-help" id="h-${k}">${esc(c.help)}</p>
+    <input type="range" id="r-${k}" data-k="${k}" min="${c.min}" max="${c.max}" step="1" aria-describedby="h-${k}">
+    <div class="lever-foot"><span id="lo-${k}">${c.min}%</span><button type="button" class="linkbtn reset" id="rs-${k}" data-k="${k}" hidden></button><span id="hi-${k}"></span></div>
+  </div>`;
+}
+function choiceHTML(k){
+  const c = CHOICES[k];
+  return `<div class="choice" role="group" aria-labelledby="cl-${k}">
+    <span class="lever-name" id="cl-${k}">${esc(c.label)}</span>
+    <p class="lever-help">${esc(c.help)}</p>
+    <div class="seg">${c.opts.map(([v, t]) => `<button type="button" class="chip" data-choice="${k}" data-v="${esc(v)}" aria-pressed="false">${esc(t)}</button>`).join('')}</div>
+  </div>`;
+}
+const NUM_SHORT_UNIT = {exportTonnes:'t', fx:'₹/€', cifEur:'€/t'};
+function numHTML(k){
+  const c = NUMS[k];
+  return `<div class="numfield">
+    <div><label class="lever-name" for="nf-${k}">${esc(c.label)}</label><p class="lever-help" id="nh-${k}">${esc(c.help)}</p><p class="lever-help" id="nf-warn-${k}" style="color:var(--bad)" hidden></p></div>
+    <div class="nf-r"><input id="nf-${k}" data-num="${k}" type="text" inputmode="numeric" autocomplete="off" aria-describedby="nh-${k}"><span>${esc(c.unit)}</span></div>
+  </div>`;
+}
+function numCapNote(k, v){
+  const c = NUMS[k], u = NUM_SHORT_UNIT[k] || c.unit, lim = v > c.max ? c.max : c.min;
+  const shown = k === 'exportTonnes' ? inr(lim) : lim;
+  return `Capped at ${shown} ${u}.`;
+}
+function buildLevers(){
+  el('levers').innerHTML = '<div class="lgroup">Materials and fuel</div>' + MAIN.filter(k => k in state).map(sliderHTML).join('')
+    + '<div class="lgroup">Where the power comes from</div>' + ENERGY.filter(k => k in state).map(sliderHTML).join('');
+  let h = '<div class="subh">The alloy chain</div>';
+  ['npi','npiEF','fecr','fecrCaptiveShare','safTech','biochar','feUnits'].forEach(k => { if (k in state) h += SLIDERS[k] ? sliderHTML(k) : choiceHTML(k); });
+  h += '<div class="subh">EU figure and reporting rules</div>';
+  ['precursorData','basis','fecrAttribution'].forEach(k => { if (k in state) h += choiceHTML(k); });
+  h += '<div class="subh">EU border figures</div>';
+  if ('exportTonnes' in state) h += numHTML('exportTonnes');
+  if ('quotaShare' in state) h += sliderHTML('quotaShare');
+  ['fx','cifEur'].forEach(k => { if (k in state) h += numHTML(k); });
+  if ('indonesiaSlabE' in state) h += `<div class="numfield">
+    <div><label class="lever-name" for="nf-slabE">Verified value for the Indonesian slab</label><p class="lever-help" id="nh-slabE">Only used for the Indonesia JV slab route. Leave blank to use the EU default (${f2((M.CBAM && M.CBAM.indonesiaSlabDefault) || 8.67)} t CO&#8322; per t slab).</p></div>
+    <div class="nf-r"><input id="nf-slabE" data-slab="1" type="text" inputmode="decimal" autocomplete="off" placeholder="default" aria-describedby="nh-slabE"><span>t CO&#8322;/t</span></div></div>`;
+  el('moreBody').innerHTML = h;
+}
+
+/* ================= render ================= */
+function syncControls(){
+  const ap = activePreset();
+  $$('[data-preset]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.preset === ap)));
+  el('customTag').hidden = !!ap;
+  const pk = ap || scenarioKey, pn = (M.PRESETS[pk] || {}).note;
+  el('scnCap').innerHTML = esc(ap ? PRESET_UI[ap].c : `Started from “${PRESET_UI[scenarioKey].t}”. Presets never change your grade or plant.`) + (pn ? ' ' + Q('About this scenario', pn) : '');
+  $$('[data-grade]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.grade === state.grade)));
+  $$('[data-plant]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.plant === state.plant)));
+  const g = G[state.grade] || {};
+  el('gradeCap').textContent = GRADE_UI[state.grade] || gradeLong(state.grade);
+  el('plantCap').textContent = (PLANT_UI[state.plant] || {}).c || '';
+  const base = presetLevers(scenarioKey);
+  for (const k in SLIDERS){
+    const r = el('r-'+k); if (!r) continue;
+    const auto = SLIDERS[k].nullable && state[k] == null;
+    const fr = k === 'fecrCaptiveShare' ? (isIndo() ? M.compute({...state, plant:'jajpur'}) : R) : null;
+    const autoV = fr && fr.fecr && ok(fr.fecr.captiveShare) ? fr.fecr.captiveShare : 1;
+    const mx = maxOf(k), v = Math.round((auto ? autoV : state[k]) * sc(k));
+    r.max = mx; r.value = v; r.style.setProperty('--p', ((v - SLIDERS[k].min) / (mx - SLIDERS[k].min) * 100) + '%');
+    r.setAttribute('aria-valuetext', v + ' percent' + (auto ? ', automatic' : ''));
+    const n = el('n-'+k); if (document.activeElement !== n){ n.value = v; n.removeAttribute('aria-invalid'); }
+    el('hi-'+k).innerHTML = k === 'scrap' ? (g.capNote ? `<span ${tipAttr('assumption', g.capNote)}>${mx}% max for ${esc(state.grade)}</span>` : `${mx}% max for ${esc(state.grade)}`) : mx + '%';
+    const rs = el('rs-'+k);
+    if (SLIDERS[k].nullable){
+      rs.hidden = auto; rs.textContent = 'Back to automatic';
+    } else {
+      const bRaw = k in base ? base[k] : DEF[k];
+      const bv = bRaw != null ? Math.round((k === 'scrap' ? Math.min(bRaw, capFor(state.grade)) : bRaw) * sc(k)) : null;
+      if (bv != null && bv !== v){ rs.hidden = false; rs.textContent = k in (M.PRESETS[scenarioKey] || {}) ? `Reset to ${PRESET_UI[scenarioKey].t} (${bv}%)` : `Reset to our assumption (${bv}%)`; }
+      else rs.hidden = true;
+    }
+  }
+  $$('[data-choice]').forEach(b => b.setAttribute('aria-pressed', String(String(state[b.dataset.choice]) === b.dataset.v)));
+  for (const k in NUMS){ const i = el('nf-'+k); if (i && document.activeElement !== i) i.value = k === 'exportTonnes' ? inr(state[k]) : state[k]; }
+  const se = el('nf-slabE'); if (se && document.activeElement !== se) se.value = state.indonesiaSlabE == null ? '' : state.indonesiaSlabE;
+  const bc = el('lv-biochar');
+  if (bc) bc.querySelector('.lever-help').textContent = state.fecr === 'captive' ? SLIDERS.biochar.help : 'Only applies when ferro-chrome is made in our own furnaces (see above).';
+  const fs = el('lv-fecrCaptiveShare'); if (fs) fs.hidden = state.fecr !== 'captive';
+  // plant-specific notes on the energy levers
+  const lf = el('lv-captiveLF');
+  if (lf){
+    const noCoal = state.plant === 'hisar' || isIndo();
+    lf.classList.toggle('off', noCoal);
+    lf.querySelector('.lever-help').textContent = noCoal
+      ? (state.plant === 'hisar' ? 'Hisar has no coal power plant; this lever moves Jajpur and the company figure only.' : 'The coal plant is at Jajpur; it does not move the Indonesian slab route.')
+      : SLIDERS.captiveLF.help;
+  }
+  $$('[data-tier]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tier === optTier)));
+  el('optGo').textContent = optTier === 'practical' ? 'Find the lowest practical mix' : `Find the lowest mix: ${TIER_UI[optTier]}`;
+}
+
+function render(){
+  R = M.compute(state);
+  MONEY = M.money(state, {exportTonnes:state.exportTonnes, fx:state.fx, cifEur:state.cifEur});
+  RC = onCoil(state, R);
+  CV = captured(state);
+  syncControls();
+  renderHeroes();
+  renderStack();
+  renderCompare();
+  scheduleOpt1();
+
+  // Scope 1+2 and FY35 progress (company, relocation excluded)
+  const co = state.plant === 'company' ? R : M.compute({...state, plant:'company'});
+  const progS12 = ok(co.s12_progress_basis) ? co.s12_progress_basis : co.s12;
+  const prog = Math.max(0, Math.min(100, (FY22_S12 - progS12) / (FY22_S12 - TARGET35) * 100));
+  const reloc = ok(co.relocation_t) && co.relocation_t > 0.005;
+  el('quiet').innerHTML = (isIndo() ? `Scope 1+2 of rolling in India: <b>${f2(R.s12)}</b> t (the Indonesian melt shop is outside it).`
+      : `Scope 1+2 at ${esc(plantName(state.plant))}: <b>${f2(R.s12)}</b> t (JSL FY26 ${prov('jsl', f2(plantS12(state.plant)), 'Scope 1+2 intensity by plant, JSL Integrated Report FY26, per tonne of crude steel.')}).`) +
+    ` Company progress to the 2035 target (${prov('jsl', f2(FY22_S12), 'JSL disclosed Scope 1+2, FY22 baseline.')} &rarr; ${prov('jsl', f2(TARGET35), 'JSL’s FY35 target: 50% cut in Scope 1+2 intensity from FY22.')}): <b>${prog.toFixed(0)}%</b>` +
+    (reloc ? ` (ferro-chrome bought instead of made moves ${f2(co.relocation_t)} t to Scope 3; not counted).` : '.') + ` <button type="button" class="linkbtn" data-open="target">What reaches it</button>`;
+
+  // warnings
+  const w = (R.warnings || []).map(x => typeof x === 'string' ? x : (x.text || x.msg || x.message || '')).filter(Boolean).map(plainWarn);
+  el('warns').hidden = !w.length;
+  el('warns').innerHTML = w.map(t => `<p>${esc(t)}</p>`).join('');
+
+  // mini + live + open folds
+  el('mn-tot').textContent = f2(R.total) + ' t CO₂/t';
+  el('mn-gj').textContent = f1(R.energy_gj) + ' GJ/t';
+  el('mn-inr').textContent = CV ? crOne(CV.net_inr_cr) + '/yr' : crTxt(MONEY.saving2026_inr_cr) + '/yr';
+  el('mn-ctx').textContent = `${gradeName(state.grade)} · ${plantName(state.plant)} · ${activePreset() ? PRESET_UI[activePreset()].t : 'your own settings'}`;
+  announce();
+  openFolds.forEach(id => FOLDS[id] && FOLDS[id].render && FOLDS[id].render());
+}
+
+// model warnings in plain words for layer 1
+function plainWarn(t){
+  t = clean(t);
+  if (/^Indonesia-slab route/.test(t)) return 'Indonesia JV slab: scrap, nickel share, ferro-chrome source, biochar, furnace type and the coal plant apply to the Indian melt shops and do not move this route. Grade, the NPI smelter’s power, clean fuel and renewables (rolling in India only) do. Route figures are estimates.';
+  return t.replace(/\bFeCr\b/g, 'ferro-chrome').replace(/\bSAFs?\b/g, 'ferro-chrome furnace').replace(/\bRE\b/g, 'renewables').replace(/\bLF\b/g, 'load').replace(/(\d) ?pp\b/g, '$1 points').replace(/\bS1\+2\b/g, 'Scope 1+2');
+}
+function renderHeroes(){
+  const u = unitPhrase();
+  // hero 1: footprint
+  el('h-tot').textContent = f2(R.total);
+  el('h-tot-u').textContent = 'tonnes of CO₂ ' + u;
+  const disclosed = R.total_label ? prov('model', 'Scope 1+2+3 as JSL discloses it', clean(R.total_label) + '. Includes JSL’s downstream categories (processing and end of life of sold products).') : 'Scopes 1+2+3';
+  el('h-tot-c').innerHTML = disclosed + (ok(R.footprint_a1a3) ? `<br>Cradle-to-gate A1–A3 estimate: ${prov('model', '<b>' + f2(R.footprint_a1a3) + '</b>', clean(R.footprint_a1a3_label || 'Disclosed boundary minus an estimate for downstream categories.'))}` : '');
+  const dT = (R.total - FY26_TOTAL) / FY26_TOTAL * 100;
+  const jslT = prov('jsl', f2(FY26_TOTAL), 'Scope 1+2+3 intensity, JSL Integrated Report FY26, per tonne of crude steel, company level. It includes downstream categories 10 and 12; JSL does not disclose a plant-level total.');
+  const wT = prov('lit', f2(WORLD_AVG), 'worldstainless / ISSF global average for stainless steel, cradle-to-gate.');
+  el('h-tot-c2').innerHTML = state.plant === 'company' && state.basis !== 'product'
+    ? `${Math.abs(dT) < 0.5 ? 'Matches' : `<span class="${dT < 0 ? 'dgood' : 'dbad'}">${Math.abs(dT).toFixed(0)}% ${dT < 0 ? 'below' : 'above'}</span>`} JSL FY26 ${jslT} &middot; world ${wT}`
+    : `JSL company FY26 ${jslT} &middot; world ${wT}`;
+  // hero 2: energy
+  el('h-gj').textContent = f2(R.energy_gj);
+  el('h-gj-u').textContent = 'gigajoules ' + u;
+  const sp = splitList(R.energy_split);
+  el('h-gj-c').innerHTML = `JSL FY26 ${prov('jsl', f2(FY26_GJ), 'Energy intensity FY26, JSL Integrated Report (BRSR), GJ per tonne of crude steel. Company level; plant energy is not disclosed.')}` +
+    (sp.length ? ` &middot; ${sp.map(s => `${esc(s.label.split(' (')[0].replace(/^Purchased electricity$/,'electricity').replace(/^Captive power$/,'captive power').replace(/^Furnace and reheating fuels$/,'fuels'))} ${f1(s.gj)}`).join(', ')} GJ` : '');
+  el('h-gj-c2').innerHTML = isIndo() ? esc(clean(R.energy_note || 'Indian rolling energy only.'))
+    : `Captive power counted at fuel input (${prov('lit', '10.5 GJ/MWh', 'Power from our own coal plant is counted at the coal it burns: CEA heat rate 2,500 kcal/kWh = 10.47 GJ per MWh generated, as JSL’s BRSR energy total counts it. Bought power counts at 3.6 GJ/MWh.')}).`;
+  // hero 3: what verified data is worth to JSL
+  const cv = CV;
+  if (!cv){
+    el('h-inr').textContent = crTxt(MONEY.saving2026_inr_cr);
+    el('h-inr-c').innerHTML = `<div class="hc">EU carbon charge avoided by EU buyers on ${inr(state.exportTonnes)} t a year with verified data instead of the EU default for India.</div>`;
+    return;
+  }
+  const t = cv.tonnes || {}, qPct = Math.round((t.quotaShare ?? state.quotaShare ?? 0.6) * 100);
+  const passPct = Math.round(((cv.jslCaptured_inr_cr / (cv.importerHeadroom_inr_cr || 1)) || 0.4) * 100);
+  el('h-inr').textContent = crOne(cv.net_inr_cr);
+  el('h-inr-u').innerHTML = `a year, 2026, on ${prov('assumption', inr(t.inQuota) + ' t in quota', `JSL’s assumed ${qPct}% share of India’s ${inr(t.indiaQuota)} t a year EU stainless-flat quota, which all Indian mills share (change it under More levers).${t.outOfQuota > 1 ? ` The other ${inr(t.outOfQuota)} t of your ${inr(t.export)} t are above it and are assumed to be sold elsewhere, since a 50% duty would apply.` : ''}`)}`;
+  el('h-inr-c').innerHTML =
+    `<div class="hline"><span>Other EU buyers avoid</span><b style="font-weight:400">${crOne(cv.importerHeadroom_inr_cr)}</b></div>` +
+    `<div class="hline"><span>JSL captures ${prov('assumption', passPct + '%', 'Share of the buyers’ avoided EU charge that JSL wins back in price or quota priority. Our assumption (range 20–40%); a carbon clause in the contract makes it explicit.')} via pricing</span><b>+${crOne(cv.jslCaptured_inr_cr)}</b></div>` +
+    `<div class="hline"><span>Iberjindal as ${prov('assumption', 'importer of record', 'Iberjindal S.L. (Spain, wholly owned, about 30 kt a year, mostly from Hisar) files and pays the EU charge itself, so the whole saving on its tonnes stays in JSL’s consolidated accounts. Importer-of-record status is to be confirmed.')}</span><b>+${crOne(cv.iberjindalDirect_inr_cr)}</b></div>` +
+    `<div class="hline"><span>Verification cost</span><b>−${crOne(cv.verificationCost_inr_cr)}</b></div>` +
+    (isIndo() ? '<div class="hc">Assumes EU orders stay on Jajpur heats: Indonesian-slab coil gains nothing from verified data.</div>' : '');
+}
+
+function renderStack(){
+  const segs = [
+    ['Direct', 'Scope 1', 'our furnaces, fuels and captive coal power', R.s1, 'var(--s1)', '#fff'],
+    ['Purchased power', 'Scope 2', 'electricity we buy from the grid', R.s2, 'var(--s2)', '#fff'],
+    ['Bought-in alloys & consumables', 'Scope 3', 'ferro-chrome, nickel and other alloys we buy, plus JSL’s disclosed downstream categories', R.s3, 'var(--s3)', 'var(--s3ink)']];
+  const tot = segs.reduce((a, s) => a + Math.max(0, s[3]), 0) || 1;
+  const bw = el('stack').clientWidth || 560, CH = 7.4;
+  let acc = 0; const above = [];
+  el('stack').innerHTML = segs.map(([n, scp, d, v, c, ink]) => {
+    const sh = Math.max(0, v) / tot, px = sh * bw, room = px - 14;
+    const full = `${n} ${f2(v)}`;
+    const fits = room >= full.length * CH, valFits = room >= 40;
+    if (!fits && sh > 0.001) above.push({text: valFits ? n : `${n} ${f2(v)}`, mid: (acc + sh / 2) * bw});
+    acc += sh;
+    const lab = fits ? full : valFits ? f2(v) : '';
+    return `<div style="flex:${Math.max(0, v).toFixed(4)};background:${c};color:${ink}" tabindex="0" data-tip="${esc(`${n} (${scp}): ${d}. ${f2(v)} t CO₂ per tonne, ${(sh*100).toFixed(0)}% of the total.`)}">${lab}</div>`;
+  }).join('');
+  // labels for segments too narrow to hold their own name sit just above the bar, pushed apart if they collide
+  const labs = el('stacklabs');
+  let prevR = -Infinity, fitsRow = true;
+  const placed = above.map(a => { const w = a.text.length * 7.2; let left = Math.max(0, Math.min(bw - w, a.mid - w / 2)); if (left < prevR + 10) left = prevR + 10; if (left + w > bw + 1) fitsRow = false; prevR = left + w; return {...a, left}; });
+  labs.hidden = !above.length;
+  labs.style.height = fitsRow ? '' : 'auto';
+  labs.innerHTML = fitsRow
+    ? placed.map(a => `<span style="left:${a.left.toFixed(0)}px">${esc(a.text)}</span>`).join('')
+    : placed.map(a => `<span style="position:static;margin-right:14px">${esc(a.text)}</span>`).join('');
+  el('stack').setAttribute('aria-label', `Carbon by scope: direct ${f2(R.s1)}, purchased power ${f2(R.s2)}, bought-in alloys ${f2(R.s3)} tonnes CO2 per tonne`);
+  el('legend').innerHTML = segs.map(([n, scp, d, v, c]) => `<span><i style="background:${c}"></i>${n} <span style="color:var(--ink3)">(${scp})</span> <b>${f2(v)}</b></span>`).join('')
+    + `<span style="color:var(--ink3)">t CO&#8322; ${esc(unitPhrase())}</span>`;
+}
+
+/* ---------- compare strip: baseline -> your scenario ---------- */
+function baseState(){
+  if (pinBase) return {...pinBase.state, basis: state.basis};
+  return fy26Base();
+}
+function metricsOf(s, r){
+  r = r || M.compute(s);
+  const rc = onCoil(s, r), cv = (s === state) ? CV : captured(s);
+  return {total:r.total, s12:r.s12, gj:r.energy_gj, eu:rc.cbamE_installation, euInst:rc.cbamInstallation, inr: cv ? cv.net_inr_cr : NaN};
+}
+function deltaCell(label, a, b, digits, higherGood, unit){
+  const d = b - a, rel = ok(a) && Math.abs(a) > 1e-9 ? d / Math.abs(a) * 100 : NaN;
+  const same = !ok(d) || Math.abs(d) < Math.pow(10, -digits) / 2;
+  const good = higherGood ? d > 0 : d < 0;
+  const fmt = n => unit === '₹' ? crOne(n) : n.toFixed(digits);
+  const ds = same ? 'no change' : `${d > 0 ? '+' : '−'}${unit === '₹' ? crOne(Math.abs(d)) : Math.abs(d).toFixed(digits)}${ok(rel) ? ` (${d > 0 ? '+' : '−'}${Math.abs(rel).toFixed(0)}%)` : ''}`;
+  return `<div class="cc"><div class="ck">${label}</div><div class="cv">${same ? '' : `<span class="from">${ok(a) ? fmt(a) : '–'} &rarr;</span> `}${ok(b) ? fmt(b) : '–'}</div><div class="cd ${same ? 'nc' : good ? 'dgood' : 'dbad'}">${ds}</div></div>`;
+}
+function renderCompare(){
+  const bs = baseState(), A = metricsOf(bs), B = metricsOf(state, R);
+  el('cmpH').innerHTML = pinBase ? `Pinned: ${esc(pinBase.label)} &rarr; your scenario` : 'FY26 today &rarr; your scenario';
+  el('unpinBtn').hidden = !pinBase;
+  const u = state.basis === 'product' ? 't/t coil' : isIndo() ? 't/t slab' : 't/t';
+  el('cmpCells').innerHTML =
+    deltaCell(`Carbon footprint, ${u}`, A.total, B.total, 2, false) +
+    deltaCell(`Scope 1+2, ${u}`, A.s12, B.s12, 2, false) +
+    deltaCell(`Energy, GJ/${u.slice(2)}`, A.gj, B.gj, 2, false) +
+    deltaCell(`EU figure, ${prov('model', 't/t coil', `t CO₂ the EU charges per tonne of cold-rolled coil, at ${plantLong(B.euInst || 'jajpur')}${state.plant === 'company' ? ' (the company view files Jajpur, where most EU-bound coil is melted)' : ''}.`)}`, A.eu, B.eu, 2, false) +
+    deltaCell('Net to JSL, a year', A.inr, B.inr, 1, true, '₹');
+  el('moved').innerHTML = movedSentence();
+}
+
+/* ---------- lowest practical mix (layer 1) ---------- */
+function runOpt1(){ try { OPT = M.optimize(state, {tier: optTier, mode: 'minCO2'}); } catch(e){ OPT = null; } renderOpt1(); }
+function scheduleOpt1(now){
+  clearTimeout(optTimer);
+  if (now || !OPT) runOpt1(); else optTimer = setTimeout(runOpt1, 140);
+}
+function planChanges(to, from){
+  from = from || state;
+  const lc = t => t.replace(/^[A-Z](?=[a-z])/, c => c.toLowerCase());
+  return LEVERS.filter(k => to && to[k] !== undefined && to[k] !== from[k]).map(k => {
+    const a = fmtLever(k, from[k]), b = fmtLever(k, to[k]);
+    const same = a.endsWith('%') && b.endsWith('%');
+    return `${esc(lc(LEVER_LABEL[k] || human(k)))} ${esc(same ? a.slice(0, -1) : a)} &rarr; ${esc(b)}`;
+  });
+}
+function renderOpt1(){
+  const o = OPT;
+  if (!o){ el('floors').textContent = ''; el('opt1Out').innerHTML = ''; return; }
+  const fb = o.floorByTier || {};
+  el('floors').innerHTML = `Lowest total reachable from these settings, t CO&#8322; ${esc(unitPhrase())}: ` +
+    Object.keys(TIER_UI).filter(k => ok(fb[k])).map(k => `${esc(TIER_UI[k])} <b>${f2(fb[k])}</b>`).join(' &middot; ') +
+    ` ${Q('What are the tiers?', 'Practical today: bio-oil only, renewables up to 70% of bought power, coal plant kept at or above its minimum load (55%), NPI at least 45%. Stretch 2030: some green hydrogen (clean fuel up to 40%), renewables 90%, one coal unit shut (load 40%), NPI JV on renewable power. Theoretical maximum: every lever at its ceiling, coal plant replaced entirely. Buying ferro-chrome instead of making it is never used: it only moves emissions to Scope 3.')}`;
+  if (!optShown){ el('opt1Out').innerHTML = ''; return; }
+  const before = ok(o.before) ? o.before : R.total, after = ok(o.after) ? o.after : o.floor;
+  if (!(before - after > 0.005)){
+    el('opt1Out').innerHTML = `<div class="optres"><p class="big">Already at the lowest for ${esc(TIER_UI[optTier])}: ${f2(before)} t CO&#8322; ${esc(unitPhrase())}.</p><p>Try the next tier, or change grade or plant at the top.</p></div>`;
+    return;
+  }
+  const ch = planChanges(o.state);
+  const m = M.compute({...state, ...pick(o.state)});
+  const usd = o.cost_usd_per_t, inrT = ok(usd) ? usd * state.fx / EURUSD : NaN;
+  const pctCut = (after - before) / before * 100;
+  el('opt1Out').innerHTML = `<div class="optres">
+    <p class="big">Total ${f2(before)} &rarr; ${f2(after)} t CO&#8322; (${neg(pctCut.toFixed(0))}%) &middot; Scope 1+2 ${f2(R.s12)} &rarr; ${f2(m.s12)}</p>
+    <p><b>What changes:</b> ${ch.length ? ch.join(', ') : 'nothing'}.</p>
+    <div class="btns" style="justify-content:space-between"><p><b>Cost:</b> about ${prov('assumption', '$' + f1(usd) + ' per tonne of steel', 'Indicative abatement costs (our estimates, rising with each step). Every figure used is listed under “Cheapest path to a target, and what every lever costs”.')} (₹${inr(inrT)} per tonne)${ok(o.avg_usd_per_tco2) ? `, $${Math.round(o.avg_usd_per_tco2)} per t CO&#8322; on average` : ''}. <button type="button" class="linkbtn" data-open="optimize">See every cost</button></p><button type="button" class="btn sec sm" id="opt1Apply">Apply these settings</button></div>
+  </div>`;
+}
+
+const SPLIT_LABEL = {elec_gj:'electricity', thermal_gj:'fuels', elecGJ:'electricity', thermalGJ:'fuels'};
+function splitList(s){
+  if (!s) return [];
+  if (Array.isArray(s)) return s.map(x => ({label: x.label || human(x.key || ''), gj: x.gj ?? x.value}));
+  return Object.entries(s).filter(([, v]) => ok(v)).map(([k, v]) => ({label: SPLIT_LABEL[k] || human(k.replace(/_?gj$/i, '')), gj: v}));
+}
+function fy26Base(){ const b = {...state, ...presetLevers('fy26')}; b.scrap = Math.min(b.scrap, capFor(state.grade)); return b; }
+// waterfall start: the pinBase baseline when it shares grade and plant, otherwise FY26 today
+const usePin = () => !!(pinBase && pinBase.state.grade === state.grade && pinBase.state.plant === state.plant);
+function stepBase(){ return usePin() ? {...pinBase.state, basis: state.basis} : fy26Base(); }
+const plainLab = r => LEVER_LABEL[r.lever] || r.label || r.lever;
+function movedSentence(){
+  const base = stepBase(), from = usePin() ? 'the pinBase baseline' : 'FY26 today';
+  const diff = LEVERS.some(k => base[k] !== state[k]);
+  if (!diff) return `<b>What moved:</b> ${from === 'FY26 today' ? `these are the FY26 settings for ${esc(gradeName(state.grade))} at ${esc(plantName(state.plant))}` : 'your levers match the pinBase baseline'}. Move a lever or pick a scenario to see what changes.`;
+  const wf = (M.waterfall(base, state) || []).filter(r => ok(r.delta) && Math.abs(r.delta) >= 0.005).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const d = R.total - M.compute(base).total;
+  const dir = d < -0.004 ? `down <b>${Math.abs(d).toFixed(2)} t</b>` : d > 0.004 ? `up <b>${d.toFixed(2)} t</b>` : 'unchanged';
+  const lc = t => t.replace(/^[A-Z](?=[a-z])/, c => c.toLowerCase());
+  const top = wf.slice(0, 3).map(r => `${esc(lc(plainLab(r)))} (${sgn2(r.delta)})`);
+  const more = wf.length > 3 ? ` and ${wf.length - 3} more` : '';
+  return `<b>What moved:</b> against ${from}, the footprint is ${dir}` + (top.length ? `, mainly from ${top.join(', ')}${more}.` : '.') +
+    ` <button type="button" class="linkbtn" data-open="moved">See each step</button>`;
+}
+let liveT = 0;
+function announce(){
+  clearTimeout(liveT);
+  liveT = setTimeout(() => {
+    el('live').textContent = `Carbon footprint ${f2(R.total)} tonnes CO2 per tonne. Energy ${f1(R.energy_gj)} gigajoules per tonne. Verified data worth ${CV ? crOne(CV.net_inr_cr).replace('₹', 'rupees ') : crTxt(MONEY.saving2026_inr_cr).replace('₹', 'rupees ')} a year to JSL.`;
+  }, 900);
+}
+
+/* ================= folds (layer 3) ================= */
+const FOLDS = {};
+function fold(id, title, teaser, renderFn, staticHTML){
+  FOLDS[id] = {id, title, teaser, render: renderFn, html: staticHTML || ''};
+}
+function buildFolds(){
+  el('folds').innerHTML = Object.values(FOLDS).map(f => `
+  <section class="fold" id="fold-${f.id}">
+    <h3><button type="button" class="fbtn" aria-expanded="false" aria-controls="fb-${f.id}" data-fold="${f.id}">
+      <span><b>${f.title}</b><span class="t">${f.teaser}</span></span><i class="chev" aria-hidden="true"></i></button></h3>
+    <div class="fbody" id="fb-${f.id}" hidden>${f.html}<div id="fx-${f.id}"></div></div>
+  </section>`).join('');
+}
+function setFold(id, open){
+  const b = document.querySelector(`[data-fold="${id}"]`), body = el('fb-'+id);
+  if (!b) return;
+  b.setAttribute('aria-expanded', String(open)); body.hidden = !open;
+  if (open){ openFolds.add(id); FOLDS[id].render && FOLDS[id].render(); } else openFolds.delete(id);
+  el('allBtn').textContent = openFolds.size === Object.keys(FOLDS).length ? 'Close all sections' : 'Open all sections';
+}
+const eurS = n => !ok(n) ? '–' : (n < 0 ? '−' : '') + '€' + Math.round(Math.abs(n)).toLocaleString('en-GB');
+const STATUS_BADGE = {'jsl-assured':['jsl','JSL-assured'], regulation:['lit','Regulation'], literature:['lit','Literature'], derived:['mod','Derived'], model:['mod','Modelled'], assumption:['asm','Assumption'], estimate:['asm','Estimate'], 'calibration-fit':['asm','Fitted'], placeholder:['asm','To complete'], notice:['mod','Notice']};
+const badge = st => { const b = STATUS_BADGE[String(st || '').toLowerCase()] || ['mod', human(st || 'model')]; return `<span class="badge ${b[0]}">${esc(b[1])}</span>`; };
+const plainCons = t => clean(t).replace(/\bNOT\b/g, 'not').replace(/≥/g, 'at or above').replace(/the CBAM figure/g, 'the EU figure').replace(/purchased-precursor direct emissions/g, 'the direct emissions of bought-in ferro-chrome and NPI');
+
+/* --- 1. CBAM --- */
+fold('cbam', 'How the EU carbon tax is calculated',
+  'Per tonne of coil at each plant, year by year on the EU default versus verified data, what it is worth to JSL, and a printable statement.',
+  renderCbam,
+  `<p class="lead">From 2026 the EU charges importers for the carbon in the steel they bring in ${Q('What is CBAM?','CBAM — the EU Carbon Border Adjustment Mechanism. The EU importer buys certificates for the embedded carbon of imported steel. The first declaration, for 2026 imports, is due 30 September 2027.')}.
+  If Jindal files verified plant data, the charge is based on our real emissions. If not, the EU applies a high <em>default value</em> for India ${Q('What is the default value?','The figure the EU assumes when a producer does not file verified data. For Indian stainless: 6.49 t CO₂/t plus a 10–30% no-data markup (7.14 in 2026, rising to 8.44 from 2028).')}. The difference is the value of verified data. The EU charges per tonne of the good (cold-rolled coil) and per plant, never per company.</p>`);
+function renderCbam(){
+  const rows = M.cbamTable(state) || [];
+  const m = MONEY, sh = m.cbamShareOfPrice;
+  const shV = typeof sh === 'number' ? sh : (sh && (sh.verified ?? sh.v)), shD = sh && typeof sh === 'object' ? (sh.default ?? sh.d) : NaN;
+  const r26 = rows.find(r => r.year === 2026) || rows[0] || {};
+  const r30 = rows.find(r => r.year === 2030) || rows[rows.length - 1] || {};
+  const T = state.exportTonnes;
+  const inst = RC.cbamInstallation || 'jajpur';
+  const eInst = ok(RC.cbamE_installation) ? RC.cbamE_installation : RC.cbamE;
+  const bp = RC.cbamE_byPrecursorData || {};
+  const eCons = ok(RC.cbamE_conservative_installation) ? RC.cbamE_conservative_installation : r26.verifiedE_conservative;
+  const crudeE = state.basis === 'product' ? M.compute({...state, basis:'crude'}).cbamE_installation : R.cbamE_installation;
+  const hasBM = 'benchmarkB' in state, bmHigh = (M.CBAM && M.CBAM.benchmarkB_high) || 1.27;
+  const order = 500, orderSave = ok(m.landedDefault) ? (m.landedDefault - m.landedVerified) * order : NaN;
+  const cj = M.compute({...state, plant:'jajpur'}).customer_footprint, chh = M.compute({...state, plant:'hisar'}).customer_footprint;
+  const indo = isIndo();
+  let route = '';
+  if (indo && M.routeComparison){
+    const rc = M.routeComparison(state) || [], sl = rc.find(x => x.route === 'indonesia_slab') || {};
+    const gap = ok(sl.gapVsJajpur_eur_per_t) ? Math.round(sl.gapVsJajpur_eur_per_t / 10) * 10 : NaN;
+    route = `<h4>Which melt shop an EU order comes from</h4>
+    <div class="result warn"><div class="big">Coil rolled from Indonesian slab carries the slab’s default (${f1(sl.cbamE)} t/t): about €${inr(gap)} per tonne more at the EU border than Jajpur-melted coil. Keep EU orders on Jajpur heats.</div></div>
+    <table class="tbl rtable" aria-label="EU border by melt route, 2026, per tonne of coil"><thead><tr><th>Melted at</th><th class="l">Origin and quota</th><th>EU figure, t CO₂/t coil</th><th>EU charge 2026, € per t</th><th>Landed price, € per t</th><th>Against Jajpur</th></tr></thead><tbody>
+    ${rc.map(x => `<tr${x.route === 'indonesia_slab' ? ' class="hl"' : ''}><td data-l="Melted at">${esc(plantLong(x.route))}</td><td data-l="Origin" class="l">${esc(clean(x.origin))}<br><small>${esc(clean(x.quotaPool))}</small></td><td data-l="EU figure">${f2(x.cbamE)}</td><td data-l="EU charge 2026">${eurS(x.cbamCost2026)}${x.verifiedBeatsDefault === false ? `<br><small>files the default instead: ${eurS(x.declaredCost2026)}</small>` : ''}</td><td data-l="Landed">${eurS(x.landedBestDeclared ?? x.landed)}</td><td data-l="Against Jajpur">${ok(x.gapVsJajpur_eur_per_t) && Math.abs(x.gapVsJajpur_eur_per_t) > 0.5 ? (x.gapVsJajpur_eur_per_t > 0 ? '+' : '') + eurS(x.gapVsJajpur_eur_per_t) : '–'}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="note">The slab is Indonesian under the EU’s melt-and-pour origin rule, so it cannot use India’s quota, and a verified slab value helps only if it beats the default. If the Indonesian melt shop were verified at our estimate (${f2(R.route && R.route.slabE_modelEstimate)} t/t slab), the coil would sit near 2.0. Enter a verified slab value under More levers.</p>`;
+  }
+  const cv = CV;
+  const lines = cv && cv.lines ? cv.lines : [];
+  const rg = cv && cv.range ? cv.range.net_inr_cr : null;
+  el('fx-cbam').innerHTML = `
+  <div class="cols">
+    <div class="card"><div class="ck">What the EU counts ${Q('What does the EU count?','For iron and steel, CBAM counts direct emissions only, plus the direct emissions of bought-in precursors such as ferro-chrome and NPI. Electricity is indirect — whether bought or made in our own coal plant — so it is excluded.')}</div>
+      <div class="cv">${f2(eInst)} <small>t CO₂ per tonne of coil, ${esc(plantLong(inst))}</small></div>
+      <p class="note">${indo ? `The Indonesian slab at ${state.indonesiaSlabE != null ? 'your verified value' : 'the EU default'} (${f2(R.route && R.route.slabE)} t per t slab), plus the direct emissions of rolling in India.` : `Direct emissions without electricity, plus bought-in ferro-chrome and NPI, now on <b>${state.precursorData === 'default' ? 'EU default values' : 'supplier data'}</b>. Per tonne of crude steel: ${f2(crudeE)}.`}${inst !== state.plant && !indo ? ' The EU charge is declared per plant; EU-bound coil is melted at ' + esc(plantName(inst)) + '.' : ''}</p>
+      <p class="note">${(() => { const lab = plainCons(RC.cbamE_conservative_label || 'Conservative bound'), i = lab.indexOf(':'); return i > 0 ? `${esc(lab.slice(0, i))} <b>${f2(eCons)}</b>: ${esc(lab.slice(i + 1).trim())}` : `${esc(lab)} <b>${f2(eCons)}</b>.`; })()}</p></div>
+    <div class="card"><div class="ck">What an EU buyer’s EPD or Scope 3 sees</div>
+      <div class="cv">${f2(R.customer_footprint)} <small>t CO₂ per tonne of coil, ${esc(plantLong(R.customer_installation || inst))}</small></div>
+      <p class="note">${esc(plainWarn(R.customer_footprint_basis || ''))} Jajpur-melted coil ${f2(cj)}, Hisar-melted coil ${f2(chh)}. JSL’s company figure (${f2(FY26_TOTAL)}) is not a product footprint: it blends two plants and includes downstream categories. Two numbers, two buyers.</p></div>
+  </div>
+  ${indo ? '' : `<p class="note">Precursor data: supplier data gives <b>${f2(bp.verified)}</b> t per t coil; if the NPI and ferro-chrome suppliers cannot give verified data, EU defaults give <b>${f2(bp.default)}</b>. Switch under More levers.</p>`}
+  ${route}
+  <h4>Border cost per tonne of coil, 2026–2030 &middot; ${esc(plantLong(inst))}</h4>
+  ${state.plant === 'company' ? '<p class="note">CBAM is filed per plant, not per company. The company view uses Jajpur, where most EU-bound coil is melted; choose Hisar at the top to see its figure.</p>' : ''}
+  ${hasBM ? `<div class="inl"><span id="bmLab">EU benchmark applied to the default value ${Q('What is the benchmark?','The EU’s reference emissions per tonne for this kind of steel; the waived share is applied to it. Which value applies on the default side is not yet confirmed, so the headline shows both as a range.')}</span>
+    <div class="seg2" role="group" aria-labelledby="bmLab"><button type="button" data-bm="0.268" aria-pressed="${state.benchmarkB < 1}">0.268, same as verified</button><button type="button" data-bm="${bmHigh}" aria-pressed="${state.benchmarkB >= 1}">${bmHigh}, Outokumpu example</button></div></div>` : ''}
+  <table class="tbl rtable" aria-label="EU border cost by year, per tonne of coil">
+    <thead><tr><th>Year</th><th>Charge waived ${Q('What is free allocation?','Free allocation: the share of the charge the EU still waives while CBAM phases in, applied to the benchmark. 97.5% in 2026, falling to 51.5% in 2030.')}</th><th>EU carbon price, € per t CO₂</th><th>Cost on EU default, € per t</th><th>Cost on verified data, € per t</th><th>Saved per tonne</th></tr></thead>
+    <tbody>${rows.map(r => `<tr${r.year === 2030 ? ' class="hl"' : ''}>
+      <td data-l="Year">${r.year}${r.year === 2026 ? ' <span style="font-weight:400;color:var(--ink2)">(settled Sep 2027)</span>' : ''}</td>
+      <td data-l="Charge waived">${f1(pct(r.freeAlloc))}%</td>
+      <td data-l="EU carbon price">${r.year === 2026 ? prov('lit', '€' + r.price, 'Average of the EC’s Q1 and Q2 2026 CBAM certificate prices (€75.36 / €75.28).') : prov('assumption', '€' + r.price, 'Analyst consensus path (BNEF / ICIS / S&P); not an actual price.')}</td>
+      <td data-l="Cost on EU default">${eurS(r.defaultCost)}</td>
+      <td data-l="Cost on verified data">${eurS(r.verifiedCost)}</td>
+      <td data-l="Saved per tonne" class="mcol">${eurS(r.saving)}</td></tr>`).join('')}</tbody>
+  </table>
+  ${indo ? '<p class="note">For Indonesian-slab coil the “verified” cost is higher than India’s default, so a declarant would file the default; the saving is negative.</p>' : ''}
+  <div class="cols">
+    <div class="card m"><div class="ck">What EU buyers avoid on all ${inr(T)} t, 2026</div>
+      <div class="cv">${crTxt(m.saving2026_inr_cr)} <small>per year</small></div>
+      <p class="note">${eurS(r26.saving)} saved per tonne &times; ${inr(T)} t = <b>€${((r26.saving || 0) * T / 1e6).toFixed(1)}M</b> at ₹${state.fx}/€ (at the benchmark chosen above; the range covers both benchmarks). 2030: <b>${crTxt(m.saving2030_inr_cr)}</b> (${eurS(r30.saving)}/t). The EU importer pays the charge, so this is the buyers’ saving; the card at the top counts only the part that reaches JSL.</p></div>
+    <div class="card"><div class="ck">Landed price of a coil in the EU, 2026</div>
+      <div class="cv">${eurS(m.landedVerified)} <small>verified vs ${eurS(m.landedDefault)} on default</small></div>
+      <p class="note">On a ${prov('assumption', '€' + inr(state.cifEur) + '/t', 'Assumed CIF price for a stainless coil delivered to an EU port. Change it under More levers.')} coil the EU charge is <b>${ok(shV) ? (pct(shV)).toFixed(1) + '%' : '–'}</b> of the price with verified data, against <b>${ok(shD) ? (pct(shD)).toFixed(1) + '%' : '–'}</b> on the default. ${ok(m.landedVerified_inQuota) ? `Inside the quota: ${eurS(m.landedVerified_inQuota)} verified vs ${eurS(m.landedDefault_inQuota)}; above it the 50% safeguard duty makes it ${eurS(m.landedVerified_outOfQuota)}. ${ok(m.outOfQuotaTonnes) && m.outOfQuotaTonnes > 1 ? `${inr(m.outOfQuotaTonnes)} of your ${inr(T)} t are above JSL’s assumed quota share; the prices above blend them in.` : ''}` : ''} On a ${order}-tonne order verified data saves the buyer <b>${ok(orderSave) ? eurS(orderSave) : '–'}</b>.</p></div>
+  </div>
+  ${cv ? `<h4>What it is worth to JSL, not to the buyer</h4>
+  <table class="tbl" aria-label="Value of verified data to JSL" style="max-width:760px"><thead><tr><th>Line</th><th>₹ Cr a year</th></tr></thead><tbody>
+    ${lines.map(l => `<tr${l.key === 'net_inr_cr' ? ' class="hl"' : ''}><td>${l.key === 'net_inr_cr' ? '<b>' + esc(clean(l.label)) + '</b>' : esc(clean(l.label))}</td><td>${l.sign < 0 && l.inr_cr > 0 ? '−' : l.sign > 0 ? '+' : ''}${crOne(l.inr_cr)}</td></tr>`).join('')}
+  </tbody></table>
+  ${rg ? `<p class="note"><b>How far it moves:</b> with the high default-side benchmark (1.27) ${crOne(rg.defaultBenchmark1_27)}; if JSL wins back only 20% from buyers ${crOne(rg.passThrough0_2)}; if JSL’s quota share is 40% ${crOne(rg.quotaShare0_4)}.</p>` : ''}
+  <p class="note"><b>Against a verifier-only baseline:</b> ${esc(clean(cv.baselineExplanation || ''))}</p>
+  ${cv.routing && cv.routing.note ? `<p class="note"><b>Routing:</b> ${esc(clean(cv.routing.note))}</p>` : ''}
+  <table class="tbl rtable" aria-label="Assumptions behind the value to JSL"><thead><tr><th>Input</th><th>Value</th><th class="l">Basis</th><th class="l">Status</th></tr></thead><tbody>
+    ${(cv.assumptions || []).map(a => `<tr><td data-l="Input">${esc(human(a.key))}</td><td data-l="Value">${esc(typeof a.value === 'number' ? (a.value >= 1000 ? inr(a.value) : String(a.value)) : a.value)} <small>${esc(a.unit && a.unit !== '-' ? a.unit : '')}</small></td><td data-l="Basis" class="l">${esc(clean(a.source))}</td><td data-l="Status" class="l">${badge(a.status)}</td></tr>`).join('')}
+  </tbody></table>` : ''}
+  <div class="btns"><button type="button" class="btn" data-print>Print one-page statement</button><button type="button" class="btn sec" id="copyBtn">Copy cost summary</button><span class="note" id="copyMsg" role="status">Modelled, indicative &mdash; not a verified CBAM filing.</span></div>
+  <h4>How it is worked out</h4>
+  <p class="note"><b>Formula (EU statutory net method, EC CBAM Q&amp;A §3.8):</b> cost per tonne = max(0, E &minus; benchmark &times; share waived) &times; EU carbon price. E(default) = India stainless 6.49 t CO₂/t with the +10/20/30% no-data markup (7.14 &rarr; 8.44). E(verified) = this scenario’s direct emissions without electricity, plus bought-in precursors, at the selected plant, per tonne of coil (crude steel &divide; ${f2(R.yield || 0.9)} yield).</p>
+  <p class="note"><b>Assumptions:</b> benchmark ${prov('assumption','0.268','EAF high-alloy benchmark (IR 2025/2620), assumed for both the default and the verified case.')} t CO₂/t on both sides (the 2026–30 value may be 0.176, and the default-case Column B is unverified &mdash; at 1.27 the 2026 saving is lower; the ₹ range spans this). 2026 price €75 = average of EC Q1/Q2 actuals; 2027–30 is an analyst path. India default 6.49 base per IR 2025/2621 (may be 5.59; sensitivity in the appendix).</p>
+  <p class="note"><b>Who keeps the saving:</b> the certificate cost is paid by the EU importer, so for other buyers the saving shows up as JSL’s price competitiveness rather than directly in its P&amp;L &mdash; except on volume where Iberjindal, JSL’s Spanish subsidiary, is the importer of record. With India’s whole EU stainless-flat quota at 64,073 t a year, a lower landed cost makes JSL the importer’s first pick for scarce quota tonnes.</p>`;
+  el('copyBtn').onclick = copySummary;
+}
+
+/* --- 2. waterfall --- */
+fold('moved', 'Why the number moved', 'Step by step from FY26 today (or your pinBase baseline) to your scenario, one lever at a time.', renderWaterfall,
+  `<p class="lead">Starting from FY26 today with the same grade and plant (or from your pinBase baseline, when it has the same grade and plant), each lever is changed in turn to your setting. Bars show how much each step adds or removes, in tonnes of CO&#8322;.</p>`);
+function renderWaterfall(){
+  const base = stepBase(), b = M.compute(base).total, e = R.total;
+  const raw = M.waterfall(base, state) || [];
+  const wf = raw.filter(r => ok(r.delta)); wf.method = raw.method;
+  if (!wf.length || !LEVERS.some(k => base[k] !== state[k])){ el('fx-moved').innerHTML = '<p class="note">Your levers are the same as the starting point. Move a lever or pick another scenario to see the steps.</p>'; return; }
+  const sum = wf.reduce((a, r) => a + r.delta, 0), resid = e - b - sum;
+  const rows = [...wf]; if (Math.abs(resid) > 0.005) rows.push({label:'Interaction between levers', delta:resid});
+  let run = b, mx = b; const bars = [];
+  rows.forEach(r => { const a = run, z = run + r.delta; bars.push({...r, a, z}); run = z; mx = Math.max(mx, a, z); });
+  mx = Math.max(mx, e) * 1.04;
+  const X = v => (v / mx * 100).toFixed(2) + '%';
+  const row = (lab, n, left, width, color, cls, tip) => `<div class="hrow ${cls||''}"><span>${lab}</span><div class="tr"><div class="bar" style="left:${left};width:${width};background:${color}" tabindex="0" data-tip="${esc(tip)}"></div></div><span class="n">${n}</span></div>`;
+  const start = usePin() ? 'Pinned baseline' : 'FY26 today';
+  el('fx-moved').innerHTML = `<div class="hbars chart" role="table" aria-label="Footprint change by lever">
+    ${row(start, f2(b), '0', X(b), 'var(--navy)', 'tot', `${start}: ${f2(b)} t CO₂ per tonne`)}
+    ${bars.map(r => { const lo = Math.min(r.a, r.z), w = Math.abs(r.delta);
+      const to = r.to !== undefined ? r.to : state[r.lever];
+      const lab = esc(plainLab(r)) + (r.lever && to !== undefined ? ` <span style="color:var(--ink3)">→ ${esc(fmtLever(r.lever, to))}</span>` : '') + (r.relocation ? ' <span style="color:var(--ink3)">(moves emissions to Scope 3, not a cut)</span>' : '');
+      return row(lab, sgn2(r.delta), X(lo), X(w), r.delta < 0 ? 'var(--s2)' : 'var(--bad)', '', `${plainLab(r)}: ${sgn2(r.delta)} t CO₂ per tonne`); }).join('')}
+    ${row('Your scenario', f2(e), '0', X(e), 'var(--navy)', 'tot', `Your scenario: ${f2(e)} t CO₂ per tonne`)}
+  </div><p class="axisnote">Bars drawn from zero. Blue steps reduce the footprint; red steps add to it. ${wf.method ? 'Each lever’s share is averaged over every order in which the changes could be made (Shapley method), so the steps add up exactly.' : 'Steps are applied in a fixed order, so a lever’s size can depend slightly on the levers before it.'}</p>`;
+}
+
+/* --- 3. sensitivity --- */
+let lens = 'total';
+const SENS_LABEL = {scrap:'Scrap +10 points', npi:'Nickel from NPI −10 points', re:'Renewable share of bought power +10 points', cf:'Clean fuel +10 points', biochar:'Biochar +10 points', npiEF:'NPI smelted on renewable power', captiveLF:'Coal plant load −10 points (power bought instead)'};
+function sensLabel(r){
+  if (r.lever === 'fecr' && r.to) return 'Ferro-chrome: ' + fmtLever('fecr', r.to).toLowerCase();
+  if (r.lever === 'safTech' && r.to) return 'Ferro-chrome furnace: ' + fmtLever('safTech', r.to).toLowerCase();
+  return SENS_LABEL[r.lever] || clean(r.label) || r.lever;
+}
+fold('next', 'Which lever to pull next', 'Every lever ranked by how much it cuts from your settings &mdash; for the footprint, India’s carbon market, and the EU border.', renderSens,
+  `<p class="lead">Each lever is moved one defined step from your current settings. The ranking changes with the ledger: renewables and the coal plant cut the footprint and India’s carbon-market figure, but not the EU border charge, which counts direct emissions only. Buying ferro-chrome instead of making it only moves emissions to Scope 3, so it is not counted as a cut for India’s carbon market or the 2035 target.</p>
+  <div class="seg2" role="group" aria-label="Rank levers by">
+    <button type="button" data-lens="total" aria-pressed="true">Carbon footprint</button>
+    <button type="button" data-lens="s12" aria-pressed="false">Scope 1+2 (India’s CCTS)</button>
+    <button type="button" data-lens="cbam" aria-pressed="false">EU border (CBAM)</button>
+  </div>`);
+function renderSens(){
+  $$('[data-lens]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lens === lens)));
+  const key = {total:'delta_total', s12:'delta_s12_progress', cbam:'delta_cbam'}[lens];
+  const all = (M.sensitivity(state) || []).map(r => ({...r, d: ok(r[key]) ? r[key] : (lens === 's12' ? r.delta_s12 : r[key])}));
+  const reloc = lens === 's12' ? all.filter(r => r.relocation) : [];
+  const rows = all.filter(r => ok(r.d) && !(lens === 's12' && r.relocation)).sort((a, b) => a.d - b.d);
+  const mx = Math.max(0.01, ...rows.map(r => Math.abs(r.d)));
+  el('fx-next').innerHTML = rows.length ? `<div class="hbars chart">${rows.map(r => {
+    const zero = Math.abs(r.d) < 0.005;
+    return `<div class="hrow"><span>${esc(sensLabel(r))}</span><div class="tr">${zero ? '' : `<div class="bar" style="left:0;width:${(Math.abs(r.d)/mx*100).toFixed(1)}%;background:${r.d < 0 ? 'var(--navy)' : 'var(--bad)'}" tabindex="0" data-tip="${esc(sensLabel(r) + ': ' + sgn2(r.d) + ' t CO₂ per tonne')}"></div>`}</div><span class="n${zero ? ' zero' : ''}">${zero ? 'no effect' : sgn2(r.d)}</span></div>`; }).join('')}
+    ${reloc.map(r => `<div class="hrow rloc"><span>${esc(sensLabel(r))}</span><div class="tr" style="font-size:13.5px">moves emissions to Scope 3, not a cut${ok(r.delta_s12) ? ` (reported Scope 1+2 would fall ${sgn2(r.delta_s12).replace(/^−/, '')})` : ''}</div><span class="n">0</span></div>`).join('')}</div>
+    <p class="axisnote">Change in t CO₂ ${esc(unitPhrase())} from your settings: sliders are moved 10 percentage points (scaled when there is less room; the coal plant by 10 points of load); switches show the whole switch.${lens === 'cbam' ? ' EU border basis: direct emissions without electricity, plus bought-in precursors.' : ''}${lens === 's12' ? ' Scope 1+2 counted the way progress to the 2035 target is: emissions moved into Scope 3 are added back.' : ''}</p>`
+    : '<p class="note">All levers are at their feasible limits &mdash; this is the floor.</p>';
+}
+
+/* --- 4. 2035 target --- */
+fold('target', 'What would close the gap to Jindal’s 2035 target', 'Jindal’s reported path since FY22, your scenario, and the settings needed to reach 0.99, tier by tier.', renderTarget,
+  `<p class="lead">Jindal has committed to halving its Scope 1+2 intensity from FY22 to FY35 &mdash; from 1.98 to 0.99 t CO&#8322; per tonne. This is a company target, so this section uses the company average per tonne of crude steel. Buying ferro-chrome instead of making it is not counted as progress: it moves the same emissions into Scope 3.</p>`);
+let seekRes = null, seekTarget = null, seekTier = 'stretch', GS = {key:'', g:null};
+function gsTruth(){
+  const s = {...state, plant:'company', basis:'crude'}, key = JSON.stringify(pick(s)) + s.grade;
+  if (GS.key !== key){ let g = null; try { g = M.goalSeek(s, TARGET35, {tier:'stretch'}); } catch(e){} GS = {key, g}; }
+  return GS.g;
+}
+function targetTruth(){
+  const g = gsTruth(); if (!g || !g.tiers) return '';
+  const T = g.tiers, pr = T.practical || {}, st = T.stretch || {}, th = T.theoretical || {};
+  const s1 = g.reachable && g.state
+    ? `Reachable in the Stretch 2030 tier by running the coal plant at about ${Math.round(g.state.captiveLF * 100)}% load and ${Math.round(g.state.cf)}% clean fuel (with ${Math.round(g.state.re)}% renewables in bought power and ${Math.round(g.state.scrap)}% scrap)`
+    : `Not reachable in the Stretch 2030 tier (floor ${f2(st.floorWithLF)})`;
+  const s2 = pr.reachable ? 'also reachable in Practical today' : `not reachable in Practical today (floor ${f2(pr.floorWithLF)})`;
+  return `${s1}; ${s2}. Without touching the coal plant, even the theoretical floor is ${f2(th.floorWithoutLF)} (Stretch ${f2(st.floorWithoutLF)}, Practical ${f2(pr.floorWithoutLF)}): the gap is captive coal power, which greener bought power cannot reach. JSL’s Jajpur electric-furnace project (3.41 lakh t, about 0.17 t/t), electrified reheating and biochar in the ferro-chrome furnaces add further room.`;
+}
+function renderTarget(){
+  const co = state.plant === 'company' && state.basis === 'crude' ? R : M.compute({...state, plant:'company', basis:'crude'});
+  const progS12 = ok(co.s12_progress_basis) ? co.s12_progress_basis : co.s12;
+  const prog = Math.max(0, Math.min(100, (FY22_S12 - progS12) / (FY22_S12 - TARGET35) * 100));
+  if (seekTarget == null) seekTarget = TARGET35;
+  const box = el('fx-target');
+  const typed = el('seekT') ? parseFloat(el('seekT').value) : NaN; if (ok(typed)) seekTarget = typed;
+  const keepSeek = box.querySelector('#seekOut') ? box.querySelector('#seekOut').innerHTML : '';
+  const reloc = ok(co.relocation_t) && co.relocation_t > 0.005;
+  box.innerHTML = `<div class="cols" style="align-items:start">
+    <div><div class="chart" id="traj"></div></div>
+    <div>
+      <div class="card"><div class="ck">Progress to the 2035 target (company, Scope 1+2)</div>
+        <div class="cv">${prog.toFixed(0)}% <small>of the cut, ${f2(FY22_S12)} → ${f2(TARGET35)}</small></div>
+        <div class="prog" style="margin-top:10px" role="img" aria-label="${prog.toFixed(0)} percent of the way to the target"><i style="width:${prog.toFixed(1)}%"></i></div>
+        <p class="note" style="margin-top:8px">Counted for progress: <b>${f2(progS12)}</b> t CO₂ per tonne, company Scope 1+2.${reloc ? ` Reported Scope 1+2 would show ${f2(co.s12)}, but ${f2(co.relocation_t)} t of that fall is ferro-chrome bought instead of made: it moves to Scope 3, so it is not counted.` : ''}</p></div>
+      <h4>Find the settings that reach a target</h4>
+      <div class="seg2" role="group" aria-label="Tier" style="margin-top:8px">${Object.keys(TIER_UI).map(t => `<button type="button" data-seektier="${t}" aria-pressed="${t === seekTier}">${esc(TIER_UI[t])}</button>`).join('')}</div>
+      <div class="inl" style="margin-top:8px"><label for="seekT">Scope 1+2 target</label><input id="seekT" type="text" inputmode="decimal" value="${f2(seekTarget)}"><span>t CO₂ per tonne</span><button type="button" class="btn" id="seekBtn">Find settings</button></div>
+      <div id="seekOut" style="margin-top:12px" aria-live="polite">${keepSeek}</div>
+    </div></div>
+    <p class="note"><b>What it takes to reach 0.99:</b> ${esc(targetTruth())}</p>`;
+  drawTraj(progS12);
+  el('seekBtn').onclick = () => {
+    flush();
+    const t = parseFloat(el('seekT').value); if (!ok(t)) { el('seekT').setAttribute('aria-invalid','true'); return; }
+    seekTarget = Math.max(0.3, Math.min(3, t)); el('seekT').value = f2(seekTarget);
+    seekRes = M.goalSeek({...state, plant: 'company', basis:'crude'}, seekTarget, {tier: seekTier});
+    showSeek();
+  };
+  if (seekRes) showSeek();
+}
+function changesList(to){
+  return LEVERS.filter(k => to && to[k] !== undefined && to[k] !== state[k]).map(k => `<span>${esc(LEVER_LABEL[k] || human(k))} <b>${esc(fmtLever(k, state[k]))} → ${esc(fmtLever(k, to[k]))}</b></span>`).join('');
+}
+function showSeek(){
+  const r = seekRes, out = el('seekOut'); if (!r || !out) return;
+  const ch = changesList(r.state);
+  const flo = ok(r.floorWithoutLF) ? ` (${f2(r.floorWithoutLF)} without touching the coal plant)` : '';
+  out.innerHTML = r.reachable
+    ? `<div class="result"><div class="big">Reachable in ${esc(TIER_UI[r.tier || seekTier] || '')}: ${f2(seekTarget)} t with these changes</div><div class="pills">${ch || '<span>No change needed &mdash; already there.</span>'}</div>${ok(r.cost_usd_per_t) ? `<p class="note" style="margin-top:8px">Indicative cost about $${f1(r.cost_usd_per_t)} per tonne of steel.</p>` : ''}${r.note ? `<p class="note" style="margin-top:8px">${esc(clean(r.note))}</p>` : ''}${ch ? '<div class="btns" style="margin-top:12px"><button type="button" class="btn sec" id="seekApply">Apply these settings</button></div>' : ''}</div>`
+    : `<div class="result warn"><div class="big">Not reachable in ${esc(TIER_UI[r.tier || seekTier] || 'this tier')}. The lowest is ${f2(r.floor)} t${flo}.</div>${ch ? `<div class="pills">Best effort: ${ch}</div>` : ''}${r.note ? `<p class="note" style="margin-top:8px">${esc(clean(r.note))}</p>` : ''}${ch ? '<div class="btns" style="margin-top:12px"><button type="button" class="btn sec" id="seekApply">Apply the best-effort settings</button></div>' : ''}</div>`;
+  const a = el('seekApply'); if (a) a.onclick = () => { applyLevers(r.state); seekRes = null; el('seekOut').innerHTML = '<p class="note">Settings applied. The numbers at the top have updated.</p>'; };
+}
+function drawTraj(yours){
+  const box = el('traj'); if (!box) return;
+  const W = Math.max(300, Math.round(box.clientWidth || 520)), H = 250, L = 40, Rr = 16, T = 22, B = 32;
+  const years = [22,23,24,25,26].filter(y => ok(disc(y,'s12')));
+  const pts = years.map(y => [y, disc(y,'s12')]);
+  const lo = 0.6, hi = Math.max(2.4, yours + .2);
+  const xs = v => L + (v - 21.5) / (35.5 - 21.5) * (W - L - Rr), ys = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const tx = 'font-size:13px;fill:var(--ink3)';
+  const grid = [1.0,1.5,2.0].map(v => `<line x1="${L}" x2="${W-Rr}" y1="${ys(v)}" y2="${ys(v)}" style="stroke:var(--line2)"/><text x="${L-8}" y="${ys(v)+4}" text-anchor="end" style="${tx}">${v.toFixed(1)}</text>`).join('');
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + xs(p[0]).toFixed(1) + ' ' + ys(p[1]).toFixed(1)).join(' ');
+  const NOWW = 88, totalW = W + NOWW, nowX = W + NOWW / 2;   // dedicated "now" column, off the FY year axis — not a forecast point
+  box.innerHTML = `<svg viewBox="0 0 ${totalW} ${H}" width="100%" role="img" aria-label="Scope 1 plus 2 intensity: JSL disclosed FY22 to FY26, your settings ${f2(yours)} (not a forecast), and the FY35 target ${f2(TARGET35)}">
+    ${grid}
+    <line x1="${xs(26)}" x2="${W-Rr}" y1="${ys(TARGET35)}" y2="${ys(TARGET35)}" style="stroke:var(--good)" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="${W-Rr}" y="${ys(TARGET35)-8}" text-anchor="end" style="font-size:13px;fill:var(--good);font-weight:600">2035 target ${f2(TARGET35)}</text>
+    <path d="${path}" fill="none" style="stroke:var(--navy)" stroke-width="2"/>
+    ${pts.map(p => `<circle cx="${xs(p[0])}" cy="${ys(p[1])}" r="5" style="fill:var(--navy);stroke:var(--surface)" stroke-width="2" tabindex="0" data-kind="jsl" data-tip="FY${p[0]} disclosed by JSL: ${f2(p[1])} t CO₂ per tonne (Scope 1+2)"/>`).join('')}
+    <line x1="${W+8}" x2="${W+8}" y1="${T}" y2="${H-B}" style="stroke:var(--line2)" stroke-dasharray="2 3"/>
+    <rect x="${nowX-7}" y="${ys(yours)-7}" width="14" height="14" transform="rotate(45 ${nowX} ${ys(yours)})" style="fill:var(--surface);stroke:var(--navy)" stroke-width="2.5" tabindex="0" data-tip="Your settings: ${f2(yours)} t CO₂ per tonne, company Scope 1+2 as counted for progress — not a forecast year, just where your current levers land."/>
+    <text x="${nowX}" y="${ys(yours)-27}" text-anchor="middle" style="font-size:12.5px;font-weight:600;fill:var(--navy)">Your settings</text>
+    <text x="${nowX}" y="${ys(yours)-14}" text-anchor="middle" style="font-size:11px;fill:var(--ink3)">(not a forecast)</text>
+    ${[22,24,26,30,35].map(v => `<text x="${xs(v)}" y="${H-10}" text-anchor="middle" style="${tx}">FY${v}</text>`).join('')}
+    <text x="${nowX}" y="${H-10}" text-anchor="middle" style="${tx}">now</text>
+  </svg><p class="axisnote">t CO&#8322; per tonne of crude steel, Scope 1+2. Dots: JSL disclosed (assured). Diamond, in its own "now" column off the year axis: your settings — a snapshot, not a forecast point.</p>`;
+}
+
+/* --- 5. optimizer --- */
+let optMode = 'min', optTarget = 2.5, optRes = null, optFoldTier = 'practical';
+fold('optimize', 'Cheapest path to a target, and what every lever costs', 'The lowest-cost mix of levers in each tier, every cost figure used, and the abatement cost curve.', renderOpt,
+  `<p class="lead">Searches scrap, nickel source, renewables, clean fuel, biochar, the NPI smelter’s power and the coal plant’s load, cheapest step first, within the limits of the tier you choose. Grade and plant are never changed, and buying ferro-chrome instead of making it is never used (it only moves emissions to Scope 3).</p>`);
+const LEVER_COLOR = {scrap:'#123f63', npi:'#3f7cb0', re:'#7fa8c9', cf:'#b3392f', biochar:'#1d7a4f', npiEF:'#835600', captiveLF:'#56606b', fecr:'#a9bfd3'};
+function renderOpt(){
+  const box = el('fx-optimize');
+  if (!box.dataset.built){
+    box.dataset.built = '1';
+    box.innerHTML = `<div class="btns">
+      <div class="seg2" role="group" aria-label="Tier">${Object.keys(TIER_UI).map(t => `<button type="button" data-ot="${t}" aria-pressed="${t === optFoldTier}">${esc(TIER_UI[t])}</button>`).join('')}</div>
+      <div class="seg2" role="group" aria-label="What to find">
+        <button type="button" data-om="min" aria-pressed="true">Lowest possible footprint</button>
+        <button type="button" data-om="cost" aria-pressed="false">Cheapest way to reach a target</button></div>
+      <span class="inl" id="optTW" hidden><label for="optT">Target footprint</label><input id="optT" type="text" inputmode="decimal" value="${f2(optTarget)}"><span>t CO₂ per tonne</span></span>
+      <button type="button" class="btn" id="optBtn">Find it</button></div>
+      <p class="note" id="optTierNote"></p>
+      <div id="optOut" aria-live="polite"></div>
+      <h4>The abatement cost curve for this tier</h4>
+      <div class="chart" id="macc"></div>
+      <h4>Every cost figure used</h4>
+      <div id="optCosts"></div>`;
+    box.addEventListener('click', e => {
+      const t = e.target.closest('[data-ot]');
+      if (t){ optFoldTier = t.dataset.ot; $$('[data-ot]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ot === optFoldTier))); optRes = null; el('optOut').innerHTML = ''; renderOptExtras(); return; }
+      const b = e.target.closest('[data-om]');
+      if (b){ optMode = b.dataset.om; $$('[data-om]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.om === optMode))); el('optTW').hidden = optMode !== 'cost'; optRes = null; el('optOut').innerHTML = ''; }
+      if (e.target.id === 'optBtn') runOpt();
+      if (e.target.id === 'optApply' && optRes) { applyLevers(optRes.state); optRes = null; el('optOut').innerHTML = '<p class="note">Settings applied. The numbers at the top have updated.</p>'; }
+    });
+  }
+  renderOptExtras();
+}
+function renderOptExtras(){
+  let mres = optRes;
+  if (!mres) { try { mres = (OPT && OPT.tier === optFoldTier) ? OPT : M.optimize(state, {tier: optFoldTier, mode:'minCO2'}); } catch(e){ mres = null; } }
+  el('optTierNote').innerHTML = mres && mres.tierNote ? `<b>${esc(TIER_UI[optFoldTier])}:</b> ${esc(plainWarn(mres.tierNote))}` : '';
+  drawMacc(mres && mres.macc);
+  const costs = (mres && mres.costs) || (M.costTable ? M.costTable(state) : []) || [];
+  el('optCosts').innerHTML = costs.length ? `<table class="tbl rtable" aria-label="Abatement cost figures"><thead><tr><th>Lever</th><th class="l">Cost steps</th><th class="l">Source</th><th class="l">Status</th></tr></thead><tbody>
+    ${costs.map(c => `<tr><td data-l="Lever">${esc(clean(c.label))}</td><td data-l="Cost steps" class="l">${(c.steps || []).map(s => `${esc(clean(s.range))}: <b>${ok(s.usd_per_tco2) ? '$' + Math.round(s.usd_per_tco2) + ' per t CO₂' : '–'}</b>${ok(s.inr_per_kwh) ? ` (₹${s.inr_per_kwh.toFixed(1)} per kWh over captive coal)` : ''}`).join('<br>')}</td><td data-l="Source" class="l">${esc(clean(c.source))}</td><td data-l="Status" class="l">${badge(c.status)}</td></tr>`).join('')}
+  </tbody></table><p class="note">US$ per tonne of CO&#8322; avoided. Rupee figures on the page use your ₹/€ &divide; ${EURUSD} $/€. Costs rise in steps: the first renewables, bio-oil and scrap are cheaper than the last. Order-of-magnitude estimates for ranking levers, not quotes.</p>` : '';
+}
+function drawMacc(macc){
+  const box = el('macc'); if (!box) return;
+  if (!Array.isArray(macc) || !macc.length){ box.innerHTML = '<p class="note">No further cuts in this tier from your settings.</p>'; return; }
+  const segs = [];
+  macc.forEach(m => { const c = Math.round(m.usd_per_tco2), last = segs[segs.length - 1];
+    if (last && last.lever === m.lever && Math.abs(last.c - c) <= 2) { last.ab += m.abatement; last.to = m.to; }
+    else segs.push({lever: m.lever, label: clean(m.label), c, ab: m.abatement, from: m.from, to: m.to}); });
+  const totAb = segs.reduce((a, s) => a + Math.max(0, s.ab), 0) || 1, maxC = Math.max(60, ...segs.map(s => s.c));
+  const W = Math.max(320, Math.round(box.clientWidth || 720)), H = 250, L = 48, Rr = 10, T = 14, B = 40;
+  const xs = v => L + v / totAb * (W - L - Rr), ys = v => T + (1 - v / (maxC * 1.08)) * (H - T - B);
+  const step = maxC > 200 ? 50 : 20;
+  const grid = []; for (let v = 0; v <= maxC * 1.05; v += step) grid.push(`<line x1="${L}" x2="${W-Rr}" y1="${ys(v)}" y2="${ys(v)}" style="stroke:var(--line2)"/><text x="${L-6}" y="${ys(v)+4}" text-anchor="end" style="font-size:12px;fill:var(--ink3)">$${v}</text>`);
+  let x = 0;
+  const bars = segs.filter(s => s.ab > 1e-6).map(s => { const x0 = xs(x), x1 = xs(x + s.ab); x += s.ab;
+    return `<rect x="${x0.toFixed(1)}" y="${ys(s.c).toFixed(1)}" width="${Math.max(1, x1 - x0 - 1).toFixed(1)}" height="${(ys(0) - ys(s.c)).toFixed(1)}" style="fill:${LEVER_COLOR[s.lever] || 'var(--s2)'}" tabindex="0" data-tip="${esc(`${s.label}: ${fmtLever(s.lever, s.from)} → ${fmtLever(s.lever, s.to)}, cuts ${f2(s.ab)} t CO₂ per tonne at about $${s.c} per t CO₂`)}"/>`; }).join('');
+  const used = Array.from(new Set(segs.map(s => s.lever)));
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Abatement cost curve: each block is one lever step, width = CO2 cut, height = cost per tonne of CO2">
+    ${grid.join('')}${bars}
+    <line x1="${L}" x2="${W-Rr}" y1="${ys(0)}" y2="${ys(0)}" style="stroke:var(--ink3)"/>
+    <text x="${L}" y="${H-22}" style="font-size:12px;fill:var(--ink3)">0</text><text x="${W-Rr}" y="${H-22}" text-anchor="end" style="font-size:12px;fill:var(--ink3)">${f2(totAb)} t cut</text>
+    <text x="${(L + W) / 2}" y="${H-6}" text-anchor="middle" style="font-size:12.5px;fill:var(--ink2)">t CO₂ cut per tonne of steel, cheapest step first</text>
+  </svg><div class="legend">${used.map(k => `<span><i style="background:${LEVER_COLOR[k] || 'var(--s2)'}"></i>${esc(LEVER_LABEL[k] || k)}</span>`).join('')}</div>`;
+}
+function runOpt(){
+  flush();
+  if (optMode === 'cost'){ const t = parseFloat(el('optT').value); if (ok(t)) optTarget = Math.max(0.3, Math.min(8, t)); el('optT').value = f2(optTarget); }
+  const cur = R.total;
+  if (optMode === 'cost' && cur <= optTarget + 1e-9){ el('optOut').innerHTML = `<div class="result"><div class="big">Already there: ${f2(cur)} t is at or below ${f2(optTarget)}.</div></div>`; return; }
+  optRes = M.optimize(state, optMode === 'cost' ? {mode: 'cheapestToTarget', target: optTarget, tier: optFoldTier} : {mode: 'minCO2', tier: optFoldTier});
+  const res = optRes; if (!res || !res.state){ el('optOut').innerHTML = '<div class="result warn"><div class="big">No result.</div></div>'; return; }
+  const m = M.compute({...state, ...pick(res.state)});
+  const unreachable = res.reachable === false || (optMode === 'cost' && m.total > optTarget + 1e-6);
+  const steps = res.steps || [], inrUsd = state.fx / EURUSD, ab = cur - m.total;
+  const stepUsd = s => ok(s.usd_per_t) ? s.usd_per_t : s.cost_usd_per_t;
+  const usdT = ok(res.cost_usd_per_t) ? res.cost_usd_per_t : steps.reduce((a, s) => a + (stepUsd(s) || 0), 0);
+  const low = ok(res.floor) ? res.floor : m.total;
+  el('optOut').innerHTML = `<div class="result${unreachable ? ' warn' : ''}">
+    <div class="big">${unreachable ? `Not reachable in ${esc(TIER_UI[optFoldTier])}. The lowest for ${esc(gradeName(state.grade))} at ${esc(plantName(state.plant))} is ${f2(low)} t` : `${f2(m.total)} t CO₂ per tonne (${sgn2(-ab)} vs now)`}</div>
+    ${unreachable ? '' : `<div class="pills">${changesList(res.state) || '<span>No lever moves needed.</span>'}<span>Scope 1+2 <b>${f2(m.s12)}</b></span><span>Energy <b>${f1(m.energy_gj)} GJ/t</b></span></div>`}
+    ${!unreachable && steps.length ? `<p class="note" style="margin-top:10px">Indicative cost <b>$${f1(usdT)} per tonne of steel</b> (about ₹${inr(usdT * inrUsd)}/t)${ab > 1e-6 ? `, average <b>$${(usdT/ab).toFixed(0)} per t CO₂</b>` : ''}.</p>
+    <table class="tbl rtable" style="margin-top:8px" aria-label="Lever merit order"><thead><tr><th>Lever, cheapest first</th><th>Change</th><th>Cut, t CO₂/t</th><th>$ per t CO₂</th><th>$ per t steel</th></tr></thead><tbody>
+    ${[...steps].sort((a, b) => (a.usd_per_tco2 ?? 0) - (b.usd_per_tco2 ?? 0)).map(s => `<tr><td data-l="Lever">${esc(LEVER_LABEL[s.lever] || clean(s.label) || s.lever)}</td><td data-l="Change">${s.from != null ? esc(fmtLever(s.lever, s.from)) + ' → ' + esc(fmtLever(s.lever, s.to)) : '–'}</td><td data-l="Cut, t CO₂/t">${f2(s.abatement ?? s.delta)}</td><td data-l="$ per t CO₂">${ok(s.usd_per_tco2) ? '$' + Math.round(s.usd_per_tco2) : '–'}</td><td data-l="$ per t steel">${ok(stepUsd(s)) ? '$' + f1(stepUsd(s)) : '–'}</td></tr>`).join('')}
+    </tbody></table>` : ''}
+    ${res.note ? `<p class="note" style="margin-top:8px">${esc(clean(res.note))}</p>` : ''}
+    ${unreachable ? '<p class="note" style="margin-top:8px">Try a higher target or the next tier, or change grade or plant at the top.</p>' : '<div class="btns" style="margin-top:12px"><button type="button" class="btn sec" id="optApply">Apply these settings</button></div>'}
+  </div>`;
+  renderOptExtras();
+}
+function pick(s){ const o = {}; LEVERS.forEach(k => { if (s && s[k] !== undefined) o[k] = s[k]; }); return o; }
+function applyLevers(s){
+  setState(pick(s));
+  const h = el('heroes');
+  h.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth', block:'start'});
+  h.classList.remove('flash'); void h.offsetWidth; h.classList.add('flash');
+  setTimeout(() => h.classList.remove('flash'), 900);
+}
+
+/* --- 6. implementation --- */
+fold('costs', 'What it costs to run this and who owns it', 'Build and running cost, who signs what, a 90-day pilot, and the payback, with what it depends on.', renderImpl);
+function renderImpl(){
+  const box = el('fx-costs');
+  if (!Biz || !Biz.implementationPlan){ box.innerHTML = '<p class="note">The business layer is not loaded.</p>'; return; }
+  const ip = Biz.implementationPlan(state, {quotaShare: state.quotaShare, exportInstallation: euInst()});
+  const c = ip.cost, cv = ip.captured || CV, pb = ip.payback || {};
+  const rng2 = (lo, hi) => `₹${lo.toFixed(2)}–${hi.toFixed(2)} Cr`;
+  const sect = (name, blk, per) => blk.items.map((it, i) => `<tr><td data-l="Stage">${i ? '' : `<b>${name}</b>`}</td><td data-l="Item" class="l">${esc(clean(it.item))}</td><td data-l="₹ Cr">${rng2(it.low, it.high)}${per ? ' a year' : ''}</td></tr>`).join('');
+  const noIb = cv ? cv.jslCaptured_inr_cr - (cv.outOfQuotaDutyCharged_inr_cr || 0) : NaN;
+  const mNoIb = ok(noIb) && noIb > 0 ? [12 * c.firstYear.low / noIb, 12 * c.firstYear.high / noIb] : null;
+  const mo = x => x < 1 ? 'under a month' : x.toFixed(0) + ' months';
+  box.innerHTML = `
+  <p class="lead">A small build on data JSL already has. All ₹ figures are order-of-magnitude estimates to be replaced by vendor and verifier quotes; the value side is read live from your settings.</p>
+  <table class="tbl rtable" aria-label="Cost to build and run"><thead><tr><th>Stage</th><th class="l">What</th><th>₹ crore</th></tr></thead><tbody>
+    ${sect('Build (once)', c.build)}${sect('Set-up (once)', c.oneOff)}${sect('Running', c.run, true)}
+    <tr class="hl"><td data-l="Stage"><b>First year, all in</b></td><td data-l="Item" class="l">build + set-up + one year of running</td><td data-l="₹ Cr"><b>${rng2(c.firstYear.low, c.firstYear.high)}</b></td></tr>
+  </tbody></table>
+  <div class="cols">
+    <div class="card m"><div class="ck">Payback</div>
+      <div class="cv">${pb.months ? mo(pb.months.low) + (pb.months.high >= 1 ? '–' + mo(pb.months.high) : '') : '–'} <small>on ${crOne(pb.annualValue_inr_cr)} a year</small></div>
+      <p class="note"><b>The honest caveat:</b> ${cv ? `${crOne(cv.iberjindalDirect_inr_cr)} of that value is Iberjindal’s own imports, and it depends on Iberjindal being importer of record. Without it, JSL keeps ${crOne(noIb)} a year from pricing, which still repays the first year in ${mNoIb ? mo(mNoIb[0]) + (mNoIb[1] >= 1 ? '–' + mo(mNoIb[1]) : '') : '–'}.` : ''} Any accredited verifier would close the same default-versus-verified gap; what this tool adds is routing orders to the right plant and heats, pricing the carbon clause before the order is booked, and one dataset for the EU, India’s carbon market and customer footprints.</p></div>
+    <div class="card"><div class="ck">What the tool itself must repay</div>
+      <div class="cv">${pb.toolIncrement ? rng2(pb.toolIncrement.cost_inr_cr.low, pb.toolIncrement.cost_inr_cr.high) : '–'} <small>build cost</small></div>
+      <p class="note">${esc(clean(pb.toolIncrement ? pb.toolIncrement.note : ''))} Choosing the lower-carbon plant for EU orders is worth about ${crOne(pb.toolIncrement.routingValue_inr_cr)} a year at your settings; every 10 kt of Indonesian-melted coil kept off the EU book avoids about ${crOne(pb.toolIncrement.misroutePenaltyAvoidedPer10kt_inr_cr)}.</p></div>
+  </div>
+  <h4>Who owns what</h4>
+  <table class="tbl rtable" aria-label="Owners"><thead><tr><th>Role</th><th class="l">Owns</th><th class="l">Decides</th></tr></thead><tbody>
+    ${ip.owners.map(o => `<tr><td data-l="Role"><b>${esc(o.role)}</b></td><td data-l="Owns" class="l">${esc(clean(o.owns))}</td><td data-l="Decides" class="l">${esc(clean(o.decision))}</td></tr>`).join('')}
+  </tbody></table>
+  <h4>A 90-day pilot</h4>
+  <table class="tbl rtable" aria-label="Pilot plan"><thead><tr><th>Phase</th><th class="l">When</th><th class="l">Tasks</th><th class="l">Done when</th></tr></thead><tbody>
+    ${ip.pilot.map(p => `<tr><td data-l="Phase"><b>${p.phase}. ${esc(p.name)}</b></td><td data-l="When" class="l">${esc(fmtDate(p.start))} to ${esc(fmtDate(p.end))}</td><td data-l="Tasks" class="l">${p.tasks.map(t => esc(clean(t))).join('<br>')}</td><td data-l="Done when" class="l">${esc(clean(p.exit))}</td></tr>`).join('')}
+  </tbody></table>
+  <h4>Data fields to add in SAP</h4>
+  <table class="tbl rtable" aria-label="SAP data fields"><thead><tr><th>Field</th><th class="l">Where it lives</th><th class="l">Why</th></tr></thead><tbody>
+    ${(ip.sapFields || []).map(f => `<tr><td data-l="Field" class="l">${esc(f.field)}</td><td data-l="Where" class="l">${esc(f.where)}</td><td data-l="Why" class="l">${esc(f.why)}</td></tr>`).join('')}
+  </tbody></table>
+  <h4>What we would ask JSL for first</h4>
+  <ul class="plain">${(ip.dataAsks || []).map(d => `<li>${esc(clean(d))}</li>`).join('')}</ul>
+  <p class="note">${esc(clean(pb.basis || ''))}</p>`;
+}
+const fmtDate = s => { const d = new Date(s + 'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}); };
+
+/* --- 7. CBAM template --- */
+let tplInst = null, tplCN = '7219';
+fold('template', 'Pre-filled CBAM data for the verifier', 'The CBAM communication fields for one plant and product, filled from the model, ready to download as CSV or JSON.', renderTpl);
+function renderTpl(){
+  const box = el('fx-template');
+  if (!Biz || !Biz.cbamTemplateFields){ box.innerHTML = '<p class="note">The business layer is not loaded.</p>'; return; }
+  const inst = tplInst || euInst();
+  const F = Biz.cbamTemplateFields(state, {installation: inst, cn: tplCN});
+  box.innerHTML = `<div class="banner" role="note">Pre-filled, not a filing, not yet verified. Modelled from public disclosures so the verifier and the importer see the structure and the numbers to be checked.</div>
+  ${isIndo() ? '<p class="note">Indonesian-slab coil is not covered here: this template is for the Indian melt shops. Slab coil is declared on the slab’s own value.</p>' : ''}
+  <div class="btns">
+    <div class="seg2" role="group" aria-label="Plant">${['jajpur','hisar'].map(p => `<button type="button" data-tplinst="${p}" aria-pressed="${p === inst}">${esc(plantName(p))}</button>`).join('')}</div>
+    <div class="seg2" role="group" aria-label="Product code">${['7219','7220'].map(c => `<button type="button" data-tplcn="${c}" aria-pressed="${c === tplCN}">CN ${c}</button>`).join('')}</div>
+    <button type="button" class="btn" id="tplCsv">Download CSV</button><button type="button" class="btn sec" id="tplJson">Download JSON</button><span class="note" id="tplMsg" role="status"></span></div>
+  <div class="tscroll"><table class="tbl rtable" aria-label="CBAM communication fields"><thead><tr><th>Section</th><th class="l">Field</th><th class="l">Value</th><th class="l">Unit</th><th class="l">Source</th><th class="l">Status</th></tr></thead><tbody>
+    ${F.map(f => `<tr><td data-l="Section">${esc(f.section)}</td><td data-l="Field" class="l">${esc(f.field)}</td><td data-l="Value" class="l"><b>${esc(typeof f.value === 'number' ? String(f.value) : f.value)}</b></td><td data-l="Unit" class="l">${esc(f.unit)}</td><td data-l="Source" class="l">${esc(clean(f.source))}</td><td data-l="Status" class="l">${badge(f.status)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+  const name = `stainlesscarbon-cbam-prefill-${inst}-${tplCN}`;
+  el('tplCsv').onclick = () => { try { download(name + '.csv', F.toCSV(), 'text/csv;charset=utf-8'); el('tplMsg').textContent = 'CSV downloaded.'; } catch(e){ el('tplMsg').textContent = 'Download blocked by the browser.'; } };
+  el('tplJson').onclick = () => { try { download(name + '.json', Biz.templateToJSON ? Biz.templateToJSON(F) : JSON.stringify(F, null, 2), 'application/json'); el('tplMsg').textContent = 'JSON downloaded.'; } catch(e){ el('tplMsg').textContent = 'Download blocked by the browser.'; } };
+}
+function download(name, text, type){
+  const blob = new Blob([text], {type}), url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; a.style.display = 'none';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* --- 8. head to head --- */
+fold('h2h', 'How JSL compares at the EU border', 'Jajpur and Hisar coil against EU mills and Asian imports: EU charge, footprint and landed price, 2026.', renderH2H);
+function renderH2H(){
+  const box = el('fx-h2h');
+  if (!Biz || !Biz.headToHead){ box.innerHTML = '<p class="note">The business layer is not loaded.</p>'; return; }
+  const H = Biz.headToHead(state, {cifEur: state.cifEur});
+  const fp = r => ok(r.productFootprint_t) ? (r.productFootprintRange ? `${f1(r.productFootprintRange[0])}–${f1(r.productFootprintRange[1])}` : f2(r.productFootprint_t)) : '–';
+  box.innerHTML = `<p class="lead">What a German buyer sees per tonne of cold-rolled coil in 2026, at the same delivered price of ${eurS(H.cifEur)}. EU mills pay the EU’s own carbon price at home, so they carry no border charge.</p>
+  <table class="tbl rtable" aria-label="EU border comparison, 2026"><thead><tr><th>Coil from</th><th>EU charge on default, € per t</th><th>EU charge with verified data, € per t</th><th>Footprint, t CO₂/t</th><th>Landed inside quota, € per t</th><th>Landed above quota, € per t</th><th class="l">Origin and quota</th></tr></thead><tbody>
+    ${H.map(r => `<tr${/^jsl-(jajpur|hisar)/.test(r.key) && r.key === 'jsl-' + euInst() ? ' class="hl"' : ''}><td data-l="Coil from"><b>${esc(r.label)}</b></td><td data-l="On default">${eurS(r.cbam2026_default_eur)}</td><td data-l="Verified">${r.cbam2026_verified_eur == null ? '–' : eurS(r.cbam2026_verified_eur)}</td><td data-l="Footprint"><span ${tipAttr(r.status === 'model' ? 'model' : r.status === 'literature' ? 'lit' : 'assumption', clean(r.footprintBasis + (r.sources ? '. ' + r.sources : '')))}>${fp(r)}</span></td><td data-l="Landed in quota">${eurS(r.landedInQuota_eur)}</td><td data-l="Landed above quota">${eurS(r.landedOutOfQuota_eur)}</td><td data-l="Origin and quota" class="l">${esc(clean(r.origin))}<br><small>${esc(clean(r.quotaBucket))}</small>${r.note ? `<br><small>${esc(clean(r.note))}</small>` : ''}</td></tr>`).join('')}
+  </tbody></table>
+  <p class="note">${esc(clean(H.note))} JSL footprints are the cradle-to-gate estimate per tonne of crude steel at each plant; EU and Asian figures are published or estimated as marked (hover each number).</p>`;
+}
+
+/* --- 9. grade for the job --- */
+fold('grades', 'Choosing a lower-carbon grade for the same job', 'Carbon per job rather than per tonne, when a leaner or stronger grade can do the work.', renderGrades,
+  `<p class="lead">A stronger grade can do the same job with less steel, and a nickel-free grade carries less alloy carbon. So compare on carbon <em>per job</em>, not per tonne &mdash; and only where the corrosion resistance ${Q('What is PREN?','PREN — pitting resistance equivalent number, a standard score for corrosion resistance. Higher is more resistant. 304 ≈ 19, 316 ≈ 24, 2205 ≈ 35.')} is enough.</p>`);
+function renderGrades(){
+  const cur = state.grade;
+  const rows = Object.keys(G).map(g => {
+    const x = {...state, grade:g, scrap:Math.min(state.scrap, capFor(g))}, m = M.compute(x), mf = ok(G[g].massFactor) ? G[g].massFactor : 1;
+    return {g, pren:G[g].pren, mf, t:m.total, job:m.total * mf};
+  });
+  const ref = rows.find(r => r.g === '304') || rows[0];
+  el('fx-grades').innerHTML = `<table class="tbl rtable" aria-label="Grade comparison per job"><thead><tr><th>Grade</th><th>Corrosion resistance (PREN)</th><th>Steel needed for the same job</th><th>Footprint per tonne</th><th>Footprint per job</th><th>vs 304</th></tr></thead><tbody>
+    ${rows.map(r => `<tr${r.g === cur ? ' class="hl"' : ''}><td data-l="Grade">${esc(gradeName(r.g))}${r.g === cur ? ' <span style="font-weight:400;color:var(--ink2)">(selected)</span>' : ''}</td><td data-l="PREN">${ok(r.pren) ? r.pren : '–'}</td><td data-l="Steel for same job">${f2(r.mf)} t</td><td data-l="Per tonne">${f2(r.t)}</td><td data-l="Per job">${f2(r.job)}</td><td data-l="vs 304">${r.g === ref.g ? '–' : neg(((r.job / ref.job - 1) * 100).toFixed(0)) + '%'}</td></tr>`).join('')}
+  </tbody></table>
+  <p class="note">Same levers and plant for every grade (scrap capped at each grade’s limit). “Steel needed” is a ${prov('assumption','mass factor','Tonnes of this grade needed to do the job of one tonne of 304 — strength-limited parts only. Indicative, from yield-strength ratios.')}: it applies only to strength-limited parts &mdash; there is no gain if the part is limited by stiffness or deflection. Examples: 430 for 304 indoors; 2205 for 316 where strength governs; lean duplex for 304.</p>`;
+}
+
+/* --- 10. end of life --- */
+fold('eol', 'If end-of-life recycling is credited', 'The same footprint under the ISSF end-of-life method, which credits the steel for being recycled later.', renderEol,
+  `<p class="lead">There are two accepted ways to count recycling. The headline uses the <b>recycled-content</b> method: scrap enters free of burden. The <b>end-of-life</b> method ${Q('What is the end-of-life method?','ISSF end-of-life approach: credits the product for the share that will be recycled at end of life (recycling rate 0.95, yield 0.909), and charges it for the scrap it uses.')} instead credits the steel for the share that will be recycled after use. The EU border charge and most product declarations use recycled content.</p>`);
+function renderEol(){
+  const a = R.total, b = R.footprint_eol, mx = Math.max(a, b || 0) * 1.05;
+  el('fx-eol').innerHTML = ok(b) ? `<div class="hbars chart">
+    <div class="hrow tot"><span>Recycled-content (headline)</span><div class="tr"><div class="bar" style="left:0;width:${(a/mx*100).toFixed(1)}%;background:var(--navy)"></div></div><span class="n">${f2(a)}</span></div>
+    <div class="hrow"><span>End-of-life credit (ISSF)</span><div class="tr"><div class="bar" style="left:0;width:${(b/mx*100).toFixed(1)}%;background:var(--s2)"></div></div><span class="n">${f2(b)}</span></div>
+  </div><p class="axisnote">t CO&#8322; ${esc(unitPhrase())}, same scenario. Difference ${sgn2(b - a)} t (${neg(((b / a - 1) * 100).toFixed(0))}%).</p>`
+  : '<p class="note">The end-of-life view is not available from the model.</p>';
+}
+
+/* --- 11. checks --- */
+const CHECK_PLAIN = [
+  [/FY26 company S1\+2/, 'FY26 company Scope 1+2 (fitted)'], [/FY26 company total/, 'FY26 company footprint, as JSL discloses it (fitted)'], [/FY26 energy/, 'FY26 energy per tonne (fitted)'],
+  [/^Jajpur S1\+2/, 'Jajpur Scope 1+2 (fitted)'], [/^Hisar S1\+2/, 'Hisar Scope 1+2 (fitted)'], [/^Jajpur Scope 1/, 'Jajpur Scope 1'],
+  [/FY24 back-cast S1\+2/, 'FY24 Scope 1+2, back-cast'], [/FY24 back-cast Scope 1/, 'FY24 Scope 1, predicted without fitting'],
+  [/^430 vs 304/, 'Nickel-free 430 against 304, footprint ratio'], [/30% scrap, NPI/, 'Industry curve: 30% scrap, NPI and coal-power ferro-chrome'], [/50% scrap/, 'Industry curve: 50% scrap, global-average charge'],
+  [/Scrap \+10 pp on the NPI/, '10 points more scrap on a virgin NPI route (industry rule of thumb −0.8 to −0.9)'], [/Scrap \+10 pp at FY26/, '10 points more scrap at JSL’s FY26 settings'],
+  [/CBAM 2026 default liability/, 'EU charge 2026 on the India default, € per t'], [/CBAM 2026 verified @/, 'EU charge 2026, verified data, € per t'],
+  [/CBAM 2026 saving @[\d.]+, benchmark 0\.268/, 'Saving 2026, verified against default, € per t'], [/CBAM 2030 saving/, 'Saving 2030, verified against default, € per t'],
+  [/benchmark B 1\.27/, 'Saving 2026 with the high default-side benchmark, € per t'], [/floor: default 5\.59/, 'Saving 2026, lowest case (default 5.59, benchmark 1.27), € per t'],
+  [/Renewables do not move/, 'Renewables do not change the EU figure'], [/Grade moves/, 'Grade changes the EU figure (316 against 304)'],
+  [/Own-SAF FeCr/, 'Our own ferro-chrome close to Odisha merchant ferro-chrome (5.65)'], [/Conservative CBAM bound/, 'Conservative EU bound at or above the EU figure at every plant'],
+  [/Customer PCF/, 'Customer footprint follows the plant (Jajpur above Hisar)'], [/relocation: progress basis/, 'Buying ferro-chrome instead of making it is not counted as progress'],
+  [/FY35 0\.99/, '2035 target: out of reach without the coal plant, reachable with it'], [/Indonesia-slab/, 'Indonesian-slab coil carries far more EU carbon than Jajpur coil'],
+  [/A1–A3 estimate/, 'Cradle-to-gate estimate = disclosed total minus the downstream estimate']
+];
+const plainCheck = c => { const m = CHECK_PLAIN.find(([re]) => re.test(c)); return m ? m[1] : clean(c); };
+fold('checks', 'Checks we ran', 'How closely the model reproduces Jindal Stainless’s reported figures, with a result on each check.', renderChecks);
+function renderChecks(){
+  const v = M.validate() || [];
+  const fmt = x => ok(x) ? (Math.abs(x) >= 100 ? inr(x) : f2(x)) : esc(x);
+  el('fx-checks').innerHTML = `<p class="lead">The model is fitted to Jindal Stainless’s assured company disclosures. <b>${v.length} live checks</b> run in your browser every time the page loads; the repository holds 415 model tests.</p>
+  <table class="tbl rtable" aria-label="Validation checks"><thead><tr><th>Check</th><th>Expected</th><th>Model</th><th>Result</th></tr></thead><tbody>
+    ${v.map(r => `<tr><td data-l="Check" class="l">${esc(plainCheck(r.check))}${r.note ? `<br><span style="font-size:13.5px;color:var(--ink3)">${esc(clean(r.note))}</span>` : ''}</td><td data-l="Expected">${fmt(r.expected)}</td><td data-l="Model">${fmt(r.got)}</td><td data-l="Result">${r.pass ? '<span class="pass">Pass</span>' : '<span class="fail">Review</span>'}</td></tr>`).join('')}
+  </tbody></table>
+  <h4>What the checks mean</h4>
+  <ul class="rules">
+    <li><b>Fits.</b> Checks marked “fitted” confirm the model reproduces the JSL figures it was calibrated to (FY26 company, Jajpur and Hisar). They show consistency, not predictive power.</li>
+    <li><b>Out of sample.</b> The FY24 back-cast fits one parameter per year (electricity per tonne) to FY24 Scope 2; Scope 1 is then predicted without fitting.</li>
+    <li><b>Physics.</b> Nickel-free 430 must come out below 304, the model must land near the worldstainless industry curve at 30% and 50% scrap, and the scrap slope must match the industry rule on a matched route.</li>
+    <li><b>EU border arithmetic.</b> Reproduced against our worked examples, plus basis checks: renewables must not move the EU figure, grade must, and the conservative bound must never sit below it.</li>
+    <li><b>Honest accounting.</b> Buying ferro-chrome instead of making it must not count as progress, and the customer footprint must follow the plant, not the company blend.</li>
+  </ul>`;
+}
+
+/* --- 12. what changed --- */
+fold('recon', 'What changed since Round 1', 'Every Round 1 number that has moved, the figure now, and why.', renderRecon);
+function renderRecon(){
+  const box = el('fx-recon');
+  if (!Biz || !Biz.reconciliation){ box.innerHTML = '<p class="note">The business layer is not loaded.</p>'; return; }
+  const rows = Biz.reconciliation();
+  box.innerHTML = `<p class="lead">Round 1 figures were first estimates. This table shows each one that has changed, the current figure at the model’s FY26 defaults, and the reason.</p>
+  <table class="tbl rtable" aria-label="What changed since Round 1"><thead><tr><th class="l">Round 1 said</th><th class="l">Now</th><th class="l">Why it changed</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td data-l="Round 1" class="l">${esc(clean(r.round1))}</td><td data-l="Now" class="l"><b>${esc(clean(r.current))}</b></td><td data-l="Why" class="l">${esc(clean(r.reason))}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+/* --- 13. methodology --- */
+fold('method', 'How the numbers are calculated', 'Formulas, boundary rules, every factor with its source and data quality, and a line-by-line breakdown.', renderMethod,
+  `<p class="lead">Ferro-chrome and nickel make up 60–75% of stainless steel’s footprint on virgin or NPI-heavy routes (about half at JSL’s FY26 settings, where 70% of the charge is scrap), and generic steel calculators leave them out. This tool models the alloy chain, India’s grid and captive power, and the EU border charge per plant. It follows the worldstainless / ISSF method.</p>
+  <div class="formula">Carbon footprint (t CO₂ per t steel) = Scope 1 + Scope 2 + Scope 3   (the boundary JSL discloses)
+  Scope 1  = fired fuel × (1 − clean-fuel share)
+           + own ferro-chrome furnace reductant 1.5 × (1 − biochar share)
+           + AOD process CO₂
+           + captive power (264 MW × load factor × 1.045 t CO₂/MWh, excluded from the EU figure)
+  Scope 2  = purchased power × (1 − renewable share) × 0.710 t CO₂/MWh
+  Scope 3  = (1 − scrap share) × Σ bought-in alloy kg × emission factor   (ferro-chrome, nickel, Mo, Mn, Cu)
+             + consumables (ferro-silicon, lime, electrodes, gases: one 0.18 estimate)
+  Cradle-to-gate A1–A3 estimate = plant product boundary − 0.12 downstream estimate
+
+EU charge (€ per t coil) = max(0, E − benchmark × share waived) × EU carbon price
+  E verified     = direct emissions without electricity + bought-in precursors (ferro-chrome, NPI), ÷ 0.90 coil yield
+  E conservative = Scope 1 without removing captive power + bought-in precursors (never below E verified)
+  E default      = India default 6.49 × (1.10 / 1.20 / 1.30 no-data markup)
+
+Energy (GJ per t) = purchased electricity × 3.6 + captive power × 10.47 (coal input) + furnace fuels</div>
+  <p class="note"><b>Audit trail:</b> Round 1 used an analyst pro-rata form (E × phase-in × price). It is superseded by the statutory net formula above and kept only in the appendix. See “What changed since Round 1”.</p>
+  <h4>Boundary rules</h4>
+  <ul class="rules">
+    <li><b>R1</b> &mdash; captive power sits inside Scope 1; only <em>bought-in</em> alloys enter Scope 3; ferro-chrome smelted in our own furnaces is counted once, in Scope 1. No double counting.</li>
+    <li><b>R2</b> &mdash; scrap enters burden-free (ISSF recycled-content method, the headline). The end-of-life credit view is shown separately above.</li>
+    <li><b>R3</b> &mdash; intensities are per tonne of <em>crude</em> steel, as JSL reports, unless you switch to per tonne of coil under More levers. The EU figure is always per tonne of cold-rolled coil (crude ÷ 0.90 yield), per plant.</li>
+    <li><b>R4</b> &mdash; the EU counts direct emissions only (electricity is indirect, bought or captive) plus the direct emissions of bought-in precursors (ferro-chrome, NPI). So renewables and the coal plant’s load lower the footprint but not the EU charge, while scrap, nickel and ferro-chrome choices lower both.</li>
+    <li><b>R5</b> &mdash; buying ferro-chrome instead of smelting it moves emissions from Scope 1+2 into Scope 3. It is never counted as progress to the 2035 target, and the optimiser never uses it.</li>
+  </ul>`);
+const QUAL = {jsl:['jsl','JSL-assured','Disclosed by Jindal Stainless and externally assured (Integrated Report / BRSR FY26).'], lit:['lit','Literature','Published source: government database, industry life-cycle study or company statement.'], reg:['lit','Regulation','Set by EU law or an official EU price.'], der:['mod','Derived','Arithmetic on JSL figures, no free choice.'], asm:['asm','Assumption','Our assumption or estimate; see Assumptions and limitations.']};
+const FACTOR_NAME = {'EF.grid':'India grid electricity','EF.captive':'Captive coal power','EF.fecrOdisha':'Odisha merchant ferro-chrome','EF.fecrImported':'Imported low-carbon ferro-chrome','EF.fecrDirect':'Ferro-chrome smelting reductant (direct)','EF.niClass1':'Refined (Class-1) nickel','EF.npiCoal':'NPI, coal-fired, per t nickel','EF.npiRE':'NPI on hydro / renewable power, per t nickel','EF.npiDirect':'NPI direct emissions, per t nickel','EF.femo':'Ferro-molybdenum','EF.femn':'Ferro-manganese (J4)','EF.femnDirect':'Ferro-manganese direct share','EF.cu':'Copper (J4)','EF.pigIron':'Pig iron','EF.pigIronDirect':'Pig iron direct share','EF.consumables':'Consumables: ferro-silicon, lime, electrodes, gases','CAPTIVE.mw':'Captive coal plant size, Jajpur','CAPTIVE.lf':'Captive plant load factor, FY26','CAPTIVE.minTechnicalLoad':'Coal plant minimum technical load','FECR_SUPPLY.capacity_kt':'Own ferro-chrome furnace capacity','FECR_SUPPLY.captiveShare':'Share of ferro-chrome made in-house','SAF_KWH.open':'Ferro-chrome furnace electricity, open furnace','ENERGY.eafSens':'Extra melting power per kg of alloy charge','PRODUCT.yieldCR':'Crude steel to cold-rolled coil yield','PRODUCT.downstreamS3':'Downstream share inside JSL’s disclosed Scope 3','INDONESIA.meltShop':'Indonesian melt shop, per t slab','INDONESIA.rollDirect':'Rolling Indonesian slab in India, direct','INDONESIA.rollMWh':'Rolling Indonesian slab in India, power','CBAM.benchmarkA':'EU benchmark, verified side','CBAM.benchmarkB_high':'EU benchmark, default side (high case)','CBAM.default2026':'EU default for Indian stainless, 2026 (with markup)','CBAM.indonesiaSlabDefault':'EU default for Indonesian slab','CBAM.precursorDefaults.fecr':'EU default, Indian ferro-chrome','CBAM.precursorDefaults.npi':'EU default, Indonesian NPI (per t NPI)','CBAM.indiaStainlessFlatQuota_t':'India’s EU stainless-flat quota','CBAM.outOfQuotaDuty':'EU duty above the quota','CBAM.price2026':'EU carbon price 2026','CBAM.price2027-30':'EU carbon price 2027–2030','COSTS.captiveLF':'Cost of buying power instead of running the coal plant, ₹/kWh','COST_PROXY.cf':'Clean fuel cost, bio-oil then hydrogen, $/t CO₂','COST_PROXY.re':'Renewables cost, $/t CO₂'};
+const BD_NAME = {captivePower:'Captive coal power',saf:'Our ferro-chrome furnaces (reductant and power)',reheat:'Reheating and other fired fuels',aod:'AOD refining process CO₂',grid:'Purchased grid power',fecr:'Bought-in ferro-chrome',ni:'Nickel (NPI and refined)',femo:'Ferro-molybdenum',femn:'Ferro-manganese',cu:'Copper',feUnits:'Iron units (pig iron)',consumables:'Consumables (estimate)',slabMelt:'Indonesian slab (melt shop and alloys)',fuels_and_process:'Fuels and process',captive_power:'Captive coal power',purchased_power:'Purchased grid power',ferrochrome:'Ferro-chrome',nickel:'Nickel',other_alloys:'Other alloys'};
+const FACTORS = [
+  ['Scope 1+2, company / Jajpur / Hisar, FY26','1.76 / 2.31 / 0.74','t CO₂/t','JSL Integrated Report FY26','jsl'],
+  ['Scope 1+2+3 as disclosed, company FY26','3.03','t CO₂/t','JSL Integrated Report FY26 (includes downstream categories 10 and 12)','jsl'],
+  ['Energy intensity FY26 / FY24','16.43 / 19.97','GJ/t','JSL Integrated Report FY26 (BRSR)','jsl'],
+  ['Scope 1+2, FY22 → FY26','1.98 · 2.08 · 2.15 · 1.85 · 1.76','t CO₂/t','JSL BRSR / ESG factsheets','jsl'],
+  ['2035 target (−50% from FY22)','0.99','t CO₂/t','JSL decarbonisation roadmap','jsl'],
+  ['India grid (FY24-25)','0.710','t CO₂/MWh','CEA CO₂ Baseline Database v21.0','lit'],
+  ['Captive subcritical coal power','1.045','t CO₂/MWh','CEA heat rate','lit'],
+  ['Captive heat rate','10.47','GJ/MWh','CEA, 2,500 kcal/kWh','lit'],
+  ['Odisha high-carbon ferro-chrome','5.4–5.9 (5.65 used)','t CO₂/t','ICDA life-cycle study','lit'],
+  ['Imported low-carbon ferro-chrome','2.3','t CO₂/t','Metso Outotec','lit'],
+  ['Captive ferro-chrome reductant (Jajpur)','1.5','t CO₂/t','ICDA: reductant, electrode paste and flux, 1.35–1.55','lit'],
+  ['NPI (per t contained nickel)','69','t CO₂/t Ni','ISSF','lit'],
+  ['NPI on hydro / renewable power','~30','t CO₂/t Ni','Our estimate for the JV','asm'],
+  ['Class-1 nickel','13','t CO₂/t Ni','ISSF','lit'],
+  ['Ferro-molybdenum','6.5 ±30%','t CO₂/t','Literature mid-point','lit'],
+  ['High-carbon ferro-manganese (J4)','3.5','t CO₂/t','Our estimate','asm'],
+  ['World average stainless, cradle-to-gate','3.70','t CO₂/t','worldstainless','lit'],
+  ['ISSF end-of-life: recycling rate / yield','0.95 / 0.909','–','ISSF methodology','lit'],
+  ['EU default, India stainless','6.49 base (7.14 → 8.44 with markup)','t CO₂/t','IR 2025/2621 (may be 5.59)','lit'],
+  ['EU benchmark, EAF high-alloy','0.268','t CO₂/t','IR 2025/2620 (assumed for both columns)','asm'],
+  ['EU carbon price 2026','75','€/t CO₂','EC Q1/Q2 2026 actuals','lit'],
+  ['EU carbon price 2027–2030','89 / 95 / 100 / 109','€/t CO₂','Analyst consensus path','asm'],
+  ['Share waived 2026 → 2030','97.5% → 51.5%','–','Reg. (EU) 2023/956 Art. 31','lit'],
+  ['EU shipments','40,000 (India’s whole quota is 64,073)','t/yr','Our estimate','asm'],
+  ['Rupees per euro / coil CIF price','90 / 3,000','₹/€, €/t','Our assumption','asm'],
+  ['Scrap limits by grade','304 80 · 316 75 · 430 60 · 2205 60 · J4 70','%','Scrap supply and chemistry match','asm'],
+  ['Abatement costs','15–250','$/t CO₂','Our estimates, rising in steps (see “what every lever costs”)','asm']
+];
+function renderMethod(){
+  const QMAP = {'jsl-assured':'jsl', assured:'jsl', jsl:'jsl', literature:'lit', regulation:'reg', derived:'der', assumption:'asm', estimate:'asm', 'calibration-fit':'asm'};
+  const fac = Array.isArray(M.FACTORS) && M.FACTORS.length
+    ? FACTORS.filter(f => f[4] === 'jsl').concat(M.FACTORS.map(f => [FACTOR_NAME[f.key] || f.factor || human(String(f.key).split('.').pop()), typeof f.value === 'number' ? String(f.value) : f.value, f.unit, clean(f.source), QMAP[String(f.status || f.quality).toLowerCase()] || 'lit']), FACTORS.filter(f => f[4] === 'asm' && /EU shipments|Rupees|Scrap limits/.test(f[0])))
+    : FACTORS;
+  const gk = Object.keys(G), fields = Array.from(new Set(gk.flatMap(g => Object.keys(G[g]).filter(k => k !== 'label' && ok(G[g][k])))));
+  const bd = R.breakdown && typeof R.breakdown === 'object' ? Object.entries(R.breakdown).filter(([, v]) => ok(v)) : [];
+  el('fx-method').innerHTML = `
+  <h4>Every factor, with its source and data quality</h4>
+  <p class="note">Data quality: ${Object.values(QUAL).map(q => `<span class="badge ${q[0]}" tabindex="0" data-tip="${esc(q[2])}">${q[1]}</span>`).join(' ')}</p>
+  <table class="tbl rtable" aria-label="Emission and energy factors"><thead><tr><th>Factor</th><th>Value</th><th>Unit</th><th class="l">Source</th><th class="l">Quality</th></tr></thead><tbody>
+    ${fac.map(f => { const q = QUAL[f[4]] || QUAL.lit; return `<tr><td data-l="Factor">${esc(f[0])}</td><td data-l="Value">${esc(f[1])}</td><td data-l="Unit">${esc(f[2])}</td><td data-l="Source" class="l">${esc(f[3])}</td><td data-l="Quality" class="l"><span class="badge ${q[0]}">${q[1]}</span></td></tr>`; }).join('')}
+  </tbody></table>
+  <h4>Grade data used by the model</h4>
+  <table class="tbl rtable" aria-label="Grade data"><thead><tr><th>Grade</th>${fields.map(k => `<th>${esc(({pren:'PREN',massFactor:'Mass factor',scrapCap:'Scrap limit %',fecr:'Ferro-chrome kg/t',ni:'Nickel kg/t',mo:'Ferro-moly kg/t',mn:'Ferro-manganese kg/t',cu:'Copper kg/t',fecr_kg:'Ferro-chrome kg/t',ni_kg:'Nickel kg/t',femo_kg:'Ferro-moly kg/t',femn_kg:'Ferro-manganese kg/t',cu_kg:'Copper kg/t'})[k] || human(k))}</th>`).join('')}</tr></thead><tbody>
+    ${gk.map(g => `<tr><td data-l="Grade">${esc(gradeName(g))}</td>${fields.map(k => `<td data-l="${esc(human(k))}">${ok(G[g][k]) ? G[g][k] : '–'}</td>`).join('')}</tr>`).join('')}
+  </tbody></table>
+  <p class="note">Round 1 grade chemistry (kg per tonne, virgin fraction): 304 &rarr; 300 ferro-chrome + 80 nickel &middot; 316 &rarr; 283 + 100 + 29 ferro-moly &middot; 430 &rarr; 283, nickel-free &middot; 2205 &rarr; 367 + 50 + 43 &middot; J4 &rarr; 250 ferro-chrome + 10 nickel + about 120 ferro-manganese + 16 copper. Energy counts purchased electricity at 3.6 GJ/MWh and captive power at its coal input (10.47 GJ/MWh), as the BRSR total does. Clean fuel swaps the fuel’s carbon, not its energy, so it moves CO&#8322; but not GJ. Energy is company level; plant energy is not disclosed.</p>
+  ${bd.length ? `<h4>Line-by-line breakdown of this scenario</h4>
+  <table class="tbl" aria-label="Breakdown of this scenario" style="max-width:560px"><thead><tr><th>Item</th><th>t CO₂ ${esc(unitPhrase())}</th></tr></thead><tbody>
+    ${bd.map(([k, v]) => `<tr><td>${esc(BD_NAME[k] || human(k))}</td><td>${f2(v)}</td></tr>`).join('')}
+    <tr><td><b>Total footprint</b></td><td><b>${f2(R.total)}</b></td></tr></tbody></table>` : ''}`;
+}
+
+/* --- 14. assumptions --- */
+fold('assume', 'Assumptions and limitations', 'What we assumed, what we could not verify, and what we deliberately left out.', null,
+  `<ul class="plain">
+    <li><b>A fitted model, not a heat-by-heat balance.</b> It is a reduced-form model fitted to company disclosures (seven fitted constants for seven FY26 targets — the fit is an identity; the evidence is the un-fitted FY24 Scope 1 within 1%, the implied fuel factors landing coal-like and gas-like, and the route-matched industry checks). Per-heat accuracy needs JSL’s plant data &mdash; that is the pilot we propose.</li>
+    <li><b>Scenario inputs are fitted.</b> The FY26 scenario reproduces JSL’s disclosed outputs; its input settings (for example the 58% NPI share) are fitted or assumed, not disclosed. The NPI share also absorbs the grade mix (JSL makes 200, 300 and 400 series, modelled here as 304).</li>
+    <li><b>What the footprint covers.</b> The headline is Scope 1+2+3 on the boundary JSL discloses, which includes downstream categories (processing and end of life of sold products). The cradle-to-gate A1–A3 figure removes an estimated 0.12 t (range 0.10–0.15); it is an estimate, not a bottom-up product footprint.</li>
+    <li><b>EU benchmark and default are not final.</b> The benchmark (0.268, maybe 0.176; Column B unverified) and India’s default (6.49, maybe 5.59) are not confirmed, so savings are shown as a range.</li>
+    <li><b>Prices after 2026 are forecasts.</b> Only the 2026 Q1/Q2 EU prices are actuals (the December 2026 EUA trades near €86, above our €75); 2027–30 is an analyst path.</li>
+    <li><b>EU volume and quota.</b> The default is 40,000 t a year; only JSL knows the real figure. India’s whole EU stainless-flat quota is 64,073 t a year for all Indian mills; JSL’s 60% share of it is our assumption, and tonnes above the quota face a 50% duty. Anti-dumping duties are not included.</li>
+    <li><b>Who keeps the saving.</b> EU importers pay the charge, so for other buyers JSL keeps only what it wins back in price (we assume 40%, range 20–40%). Iberjindal’s own imports count in full only if it is importer of record (to be confirmed).</li>
+    <li><b>Any competent verifier gets the “versus default” gap.</b> The tool’s value is per-plant routing, order-level quotes and one dataset for the EU, India and customers &mdash; not the verification itself.</li>
+    <li><b>Abatement costs are our estimates</b>, rising in steps (bio-oil then hydrogen, cheap then firmed renewables); for ranking levers, not quotes.</li>
+    <li><b>The 2035 target needs the coal plant.</b> With the modelled levers, 0.99 is reachable in the Stretch 2030 tier only by running the captive coal plant at about 40% load; it is not reachable in Practical today, and without touching the coal plant even the theoretical floor stays above 1.0.</li>
+    <li><b>Scope 3 is partly estimated.</b> Ferro-silicon, lime, electrodes, refractories and industrial gases are one estimated constant (0.18 t/t, range 0.12–0.27); transport is not included.</li>
+    <li><b>Captive plant load.</b> The 264 MW Jajpur coal plant is assumed to run at 70% in FY26. The load slider is a lever: it moves Scope 1 and the footprint but never the EU figure, which excludes electricity. JSL can replace the 70% with its own generation data.</li>
+    <li><b>Own-furnace ferro-chrome.</b> With the furnaces’ power counted at the Jajpur site mix (coal plant and bought power), JSL’s own ferro-chrome comes out at about 4.9 t CO₂/t against 5.65 for Odisha merchant ferro-chrome; the gap is JSL’s renewable share of bought power. Counting bought power first gives about 3.0. Both rules give the same FY26 totals; switch under More levers.</li>
+    <li><b>Relocation is not a cut.</b> Buying ferro-chrome instead of making it lowers reported Scope 1+2 but raises Scope 3 by a similar amount, so it is never counted as progress or used by the optimiser.</li>
+    <li><b>Per tonne of coil.</b> The 0.90 crude-to-coil yield is an estimate; the EU figure is per tonne of coil, JSL’s disclosures per tonne of crude steel.</li>
+    <li><b>The Indonesia slab route is all estimates</b> (melt shop, scrap share, rolling energy). Whether the EU default follows the melt shop’s country or customs origin is not settled; the route table shows both.</li>
+    <li><b>Grade ranking differs from ISSF.</b> 430/304 = 0.62 here versus about 0.95 in ISSF, because JSL’s nickel comes largely from NPI rather than Class-1 nickel.</li>
+    <li><b>Renewable share.</b> JSL’s 46.8% is the share of <em>bought</em> power; the Integrated Report’s location/market Scope 2 ratio implies about 27%. To be reconciled.</li>
+    <li><b>Plant energy.</b> Jajpur and Hisar energy figures are modelled from each plant’s fuel and power split (Hisar anchored to 8.84 GJ/t, year/boundary unverified).</li>
+    <li><b>Scrap limits</b> reflect scrap supply and chemistry match (India’s scrap availability is 23–25%; a 15 Mt global deficit is expected by 2030), with a warning near each grade’s cap. Beyond 80% is roadmap upside with sensor-based sorting.</li>
+    <li><b>The core arithmetic fits in a spreadsheet.</b> The defensible part is the stainless alloy-chain data model and the EU precursor logic, designed to sit on JSL’s SAP data.</li>
+  </ul>`);
+
+/* --- 15. sources --- */
+fold('sources', 'Where the numbers come from', 'Regulations, databases and Jindal Stainless reports behind every factor.', null,
+  `<ul class="plain">
+    <li><b>Jindal Stainless:</b> Integrated Report FY26; BRSR, CDP and ESG factsheets FY22–FY26.</li>
+    <li><b>Indian government data:</b> CEA CO&#8322; Baseline Database v21.0; BEE PAT scheme; draft CCTS notification (26 June 2026, 255 steel units).</li>
+    <li><b>Industry methods and factors:</b> worldstainless / ISSF methodology; ICDA ferro-chrome life-cycle study; Metso Outotec; Nickel Institute; IPCC 2006 Guidelines.</li>
+    <li><b>EU regulation:</b> Regulation (EU) 2023/956 (CBAM); Implementing Regulations 2025/2620 and 2025/2621; Regulation 2026/1740; the 2026 steel safeguard revision (India stainless-flat quota); EC CBAM Q&amp;A (27 May 2026); EC CBAM certificate price page.</li>
+    <li><b>Market analysis:</b> BNEF, ICIS and S&amp;P price paths; Goldman Sachs; ICRA; CRISIL.</li>
+    <li><b>Research base:</b> deep-dive research files and 40+ primary sources (available on request). Full working in the <a href="../appendix.pdf">appendix</a>.</li>
+  </ul>`);
+
+/* ================= print & copy ================= */
+function summaryLines(){
+  const rows = M.cbamTable(state) || [], r26 = rows.find(r => r.year === 2026) || {}, r30 = rows.find(r => r.year === 2030) || {};
+  return {r26, r30};
+}
+const PRINT_LABEL = {scrap:'Scrap in charge', re:'Renewable share of bought power', cf:'Clean fuel', npi:'Nickel from NPI', npiEF:'NPI source', fecr:'Ferro-chrome source', fecrCaptiveShare:'Own ferro-chrome share', fecrMerchant:'Bought ferro-chrome from', safTech:'Ferro-chrome furnace', biochar:'Biochar in own furnaces', feUnits:'Iron replacing NPI iron', captiveLF:'Captive coal plant load'};
+function buildPrint(){
+  flush();
+  const {r26, r30} = summaryLines(), ap = activePreset(), cv = CV;
+  const inst = RC.cbamInstallation || 'jajpur';
+  const inputs = [['Grade', gradeName(state.grade)], ['Plant', plantLong(state.plant)], ['Scenario', ap ? PRESET_UI[ap].t : 'Own settings (from ' + PRESET_UI[scenarioKey].t + ')']]
+    .concat(LEVERS.map(k => [PRINT_LABEL[k] || LEVER_LABEL[k] || human(k), fmtLever(k, state[k])]))
+    .concat([['EU data for bought-in precursors', fmtLever('precursorData', state.precursorData)], ['EU shipments', inr(state.exportTonnes) + ' t/yr'], ['JSL share of India’s EU quota', Math.round(state.quotaShare * 100) + '%'], ['Rupees per euro', '₹' + state.fx], ['Coil price delivered to EU', '€' + inr(state.cifEur) + '/t']]);
+  const half = Math.ceil(inputs.length / 2);
+  const tr = [];
+  for (let i = 0; i < half; i++){ const a = inputs[i], b = inputs[i + half]; tr.push(`<tr><td>${esc(a[0])}</td><td>${esc(a[1])}</td><td>${b ? esc(b[0]) : ''}</td><td>${b ? esc(b[1]) : ''}</td></tr>`); }
+  el('printSheet').innerHTML = `
+    <h1>StainlessCarbon &mdash; scenario summary</h1>
+    <p class="sub">${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})} &middot; Modelled, indicative &mdash; not a verified CBAM filing.</p>
+    <h2>Inputs</h2><table>${tr.join('')}</table>
+    <h2>Results</h2>
+    <div class="ph"><div><span>Carbon footprint (Scope 1+2+3 as disclosed)</span><b>${f2(R.total)}</b> t CO₂/t</div><div><span>Energy</span><b>${f2(R.energy_gj)}</b> GJ/t</div><div class="m"><span>Verified data, worth to JSL, 2026</span><b>${cv ? crOne(cv.net_inr_cr) : crTxt(MONEY.saving2026_inr_cr)}</b> /yr</div></div>
+    <p style="margin-top:6pt">${esc(unitPhrase())}: Scope 1 (direct) ${f2(R.s1)} &middot; Scope 2 (purchased power) ${f2(R.s2)} &middot; Scope 3 (bought-in alloys and downstream) ${f2(R.s3)} &middot; Scope 1+2 ${f2(R.s12)}. Cradle-to-gate A1–A3 estimate ${f2(R.footprint_a1a3)}. JSL FY26 company: 3.03 total, 1.76 Scope 1+2, 16.43 GJ/t (per t crude).</p>
+    <h2>EU border (CBAM), per tonne of cold-rolled coil</h2>
+    <p>Emissions the EU counts, at ${esc(plantLong(inst))}: <b>${f2(RC.cbamE_installation)}</b> t CO₂/t coil (conservative bound ${f2(RC.cbamE_conservative_installation)}). Customer footprint (EPD / Scope 3): ${f2(R.customer_footprint)} t CO₂/t coil.</p>
+    <p>2026 (EU price €${r26.price ?? 75}): verified ${eurS(r26.verifiedCost)}/t vs EU default ${eurS(r26.defaultCost)}/t &rarr; saving <b>${eurS(r26.saving)}/t</b>; EU buyers avoid <b>${crTxt(MONEY.saving2026_inr_cr)}</b> a year on ${inr(state.exportTonnes)} t. Settled September 2027.</p>
+    <p>2030 (EU price €${r30.price ?? 109}): saving <b>${eurS(r30.saving)}/t</b> &rarr; <b>${crTxt(MONEY.saving2030_inr_cr)}</b> a year for EU buyers.</p>
+    ${cv ? `<p>Worth to JSL (in-quota ${inr(cv.tonnes.inQuota)} t): Iberjindal direct ${crOne(cv.iberjindalDirect_inr_cr)} + JSL captures via pricing ${crOne(cv.jslCaptured_inr_cr)} &minus; verification ${crOne(cv.verificationCost_inr_cr)} = <b>${crOne(cv.net_inr_cr)}</b> a year.</p>` : ''}
+    <p>Landed price of a €${inr(state.cifEur)}/t coil: ${eurS(MONEY.landedVerified)} verified vs ${eurS(MONEY.landedDefault)} on default.</p>
+    <h2>Key assumptions</h2>
+    <ul><li>Statutory net formula: max(0, E − benchmark × share waived) × price. Benchmark 0.268 both sides (may be 0.176; Column B unverified; the ₹ range covers 0.268–1.27).</li>
+    <li>India default 6.49 + 10/20/30% markup (IR 2025/2621; may be 5.59). 2026 price = EC Q1/Q2 actual average; 2027–30 = analyst path. Coil = crude ÷ 0.90 yield (estimate).</li>
+    <li>EU shipments ${inr(state.exportTonnes)} t/yr, JSL quota share ${Math.round(state.quotaShare * 100)}%, 40% of other buyers’ saving won back in price, Iberjindal as importer of record, and ₹${state.fx}/€ are our assumptions.</li>
+    <li>Reduced-form model fitted to JSL FY26 disclosures; consumables are one 0.18 t/t estimate, transport excluded; captive plant load 70% in FY26 assumed.</li></ul>
+    <p class="foot">Stainless Spark &ndash; Engineering Innovation, Building Futures &middot; Jindal Stainless case competition &middot; PS-3 &middot; grv-io.github.io/sc-346a9f98/website</p>`;
+}
+function doPrint(){ buildPrint(); window.print(); }
+window.addEventListener('beforeprint', buildPrint);
+function copySummary(){
+  flush();
+  const {r26, r30} = summaryLines(), cv = CV, inst = RC.cbamInstallation || 'jajpur';
+  const txt = `StainlessCarbon — cost summary (modelled, indicative; not a verified CBAM filing)
+Plant ${plantLong(state.plant)} · grade ${gradeName(state.grade)} · ${LEVERS.map(k => (LEVER_LABEL[k] || k) + ' ' + fmtLever(k, state[k])).join(' · ')}
+Footprint ${f2(R.total)} t CO2 ${unitPhrase()} (S1 ${f2(R.s1)} · S2 ${f2(R.s2)} · S3 ${f2(R.s3)}; A1–A3 estimate ${f2(R.footprint_a1a3)}) · energy ${f2(R.energy_gj)} GJ/t
+EU-counted emissions, at ${plantLong(inst)}: ${f2(RC.cbamE_installation)} t CO2/t coil (conservative ${f2(RC.cbamE_conservative_installation)})
+2026 imports (€${r26.price}): verified €${Math.round(r26.verifiedCost)}/t vs default €${Math.round(r26.defaultCost)}/t → saving €${Math.round(r26.saving)}/t → EU buyers avoid ${crTxt(MONEY.saving2026_inr_cr)}/yr on ${inr(state.exportTonnes)} t at ₹${state.fx}/€ (settled Sep 2027)
+2030 (€${r30.price}): saving €${Math.round(r30.saving)}/t → ${crTxt(MONEY.saving2030_inr_cr)}/yr${cv ? `
+Worth to JSL: ${crOne(cv.net_inr_cr)}/yr (Iberjindal direct ${crOne(cv.iberjindalDirect_inr_cr)}, pricing ${crOne(cv.jslCaptured_inr_cr)}, verification −${crOne(cv.verificationCost_inr_cr)}) on ${inr(cv.tonnes.inQuota)} t in quota` : ''}
+Assumptions: net formula, benchmark 0.268–1.27 · India default 6.49 + markup (may be 5.59) · 2027–30 prices analyst path · coil yield 0.90`;
+  const msg = el('copyMsg');
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let okc = false; try { okc = document.execCommand('copy'); } catch(e){} ta.remove(); return okc ? Promise.resolve() : Promise.reject(); };
+  const p = navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(txt).catch(fallback) : fallback();
+  p.then(() => { msg.textContent = 'Copied to the clipboard.'; }).catch(() => { msg.innerHTML = 'Copying was blocked by the browser. Select the text below and copy it.<pre style="white-space:pre-wrap;font-size:13px;margin-top:6px;user-select:all">' + esc(txt) + '</pre>'; });
+}
+
+/* ================= tooltip (hover, focus, tap) ================= */
+const tip = el('tip'); let tipFor = null, pinned = false;
+const KIND = {jsl:['jsl','JSL FY26'], assumption:['asm','Assumption'], lit:['lit','Literature'], model:['mod','Modelled']};
+function showTip(t){
+  const k = KIND[t.dataset.kind];
+  tip.innerHTML = (k ? `<span class="badge tk ${k[0]}">${k[1]}</span><br>` : '') + esc(t.dataset.tip);
+  tip.classList.add('show'); tipFor = t; t.setAttribute('aria-describedby', 'tip');
+  const r = t.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = Math.min(window.innerWidth - w - 8, Math.max(8, r.left + r.width / 2 - w / 2));
+  let y = r.bottom + 8; if (y + h > window.innerHeight - 8) y = Math.max(8, r.top - h - 8);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip(){ tip.classList.remove('show'); if (tipFor) tipFor.removeAttribute('aria-describedby'); tipFor = null; pinned = false; }
+document.addEventListener('mouseover', e => { const t = e.target.closest('[data-tip]'); if (t && !pinned && t !== tipFor) showTip(t); });
+document.addEventListener('mouseout', e => { const t = e.target.closest('[data-tip]'); if (t && !pinned && (!e.relatedTarget || !t.contains(e.relatedTarget))) hideTip(); });
+document.addEventListener('focusin', e => { const t = e.target.closest('[data-tip]'); if (t) { pinned = false; showTip(t); } else if (!pinned) hideTip(); });
+document.addEventListener('focusout', e => { if (e.target.closest('[data-tip]') && !pinned) hideTip(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+window.addEventListener('scroll', () => { if (tipFor) hideTip(); }, {passive:true});
+
+/* ================= events ================= */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t){ if (tipFor === t && pinned) hideTip(); else { showTip(t); pinned = true; } }
+  else if (tipFor && !e.target.closest('#tip')) hideTip();
+
+  const pr = e.target.closest('[data-preset]');
+  if (pr){ scenarioKey = pr.dataset.preset; pinBase = null; setState(presetLevers(scenarioKey)); return; }
+  const g = e.target.closest('[data-grade]');
+  if (g){ state.grade = g.dataset.grade; setState({}); return; }
+  const p = e.target.closest('[data-plant]');
+  if (p){ setState({plant: p.dataset.plant}); return; }
+  const ch = e.target.closest('[data-choice]');
+  if (ch){ setState({[ch.dataset.choice]: optVal(ch.dataset.choice, ch.dataset.v)}); return; }
+  const bm = e.target.closest('[data-bm]');
+  if (bm){ setState({benchmarkB: +bm.dataset.bm}); return; }
+  const st = e.target.closest('.stp');
+  if (st){ const k = st.dataset.k, cur = state[k] == null ? (k === 'fecrCaptiveShare' && R && R.fecr ? R.fecr.captiveShare : 1) : state[k];
+    setState({[k]: (Math.round(cur * sc(k)) + (+st.dataset.d) * SLIDERS[k].bstep) / sc(k)}); return; }
+  const rs = e.target.closest('.reset');
+  if (rs){ const k = rs.dataset.k, base = presetLevers(scenarioKey); setState({[k]: SLIDERS[k] && SLIDERS[k].nullable ? null : (k in base ? base[k] : DEF[k])}); return; }
+  const tr = e.target.closest('[data-tier]');
+  if (tr){ optTier = tr.dataset.tier; syncControls(); scheduleOpt1(true); return; }
+  if (e.target.closest('#optGo')){ flush(); optShown = true; scheduleOpt1(true); return; }
+  if (e.target.closest('#opt1Apply') && OPT && OPT.state){ applyLevers(OPT.state); return; }
+  if (e.target.closest('#pinBtn')){
+    flush(); const ap = activePreset();
+    pinBase = {state: {...state}, label: `${ap ? PRESET_UI[ap].t : 'your settings'}, ${gradeName(state.grade)}, ${plantName(state.plant)}`};
+    render(); el('live').textContent = 'Current settings pinned as the baseline.'; return;
+  }
+  if (e.target.closest('#unpinBtn')){ pinBase = null; render(); return; }
+  const skt = e.target.closest('[data-seektier]');
+  if (skt){ seekTier = skt.dataset.seektier; $$('[data-seektier]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.seektier === seekTier))); seekRes = null; const so = el('seekOut'); if (so) so.innerHTML = ''; return; }
+  const ti = e.target.closest('[data-tplinst]');
+  if (ti){ tplInst = ti.dataset.tplinst; renderTpl(); return; }
+  const tc = e.target.closest('[data-tplcn]');
+  if (tc){ tplCN = tc.dataset.tplcn; renderTpl(); return; }
+  const fb = e.target.closest('[data-fold]');
+  if (fb){ setFold(fb.dataset.fold, fb.getAttribute('aria-expanded') !== 'true'); return; }
+  const op = e.target.closest('[data-open]');
+  if (op){ const id = op.dataset.open; setFold(id, true); el('fold-' + id).scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth', block:'start'}); return; }
+  const ln = e.target.closest('[data-lens]');
+  if (ln){ lens = ln.dataset.lens; renderSens(); return; }
+  if (e.target.closest('[data-print]')) { doPrint(); return; }
+});
+el('printTop').addEventListener('click', doPrint);
+el('moreBtn').addEventListener('click', () => {
+  const b = el('moreBtn'), open = b.getAttribute('aria-expanded') !== 'true';
+  b.setAttribute('aria-expanded', String(open)); el('moreBody').hidden = !open;
+});
+el('allBtn').addEventListener('click', () => {
+  const all = openFolds.size === Object.keys(FOLDS).length;
+  Object.keys(FOLDS).forEach(id => setFold(id, !all));
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.type === 'range' && t.dataset.k){ setState({[t.dataset.k]: +t.value / sc(t.dataset.k)}); return; }
+  if (t.classList.contains('numin')){
+    const k = t.dataset.k, v = parseFloat(t.value);
+    const valid = ok(v) && v >= SLIDERS[k].min && v <= maxOf(k);
+    t.setAttribute('aria-invalid', String(!valid && t.value !== ''));
+    if (valid) setState({[k]: Math.round(v) / sc(k)});
+    return;
+  }
+  if (t.dataset.num){
+    const k = t.dataset.num, v = parseFloat(String(t.value).replace(/[, ]/g, '')), warnEl = el('nf-warn-'+k);
+    if (warnEl) warnEl.hidden = !(ok(v) && (v > NUMS[k].max || v < NUMS[k].min));
+    if (warnEl && !warnEl.hidden) warnEl.textContent = numCapNote(k, v);
+    if (ok(v) && v >= NUMS[k].min && v <= NUMS[k].max) setState({[k]: v});
+    if (k === 'exportTonnes') quotaNote(v);
+    return;
+  }
+  if (t.dataset.slab){
+    const raw = String(t.value).trim(), v = parseFloat(raw);
+    if (raw === '') setState({indonesiaSlabE: null});
+    else if (ok(v) && v > 0 && v <= 15) setState({indonesiaSlabE: v});
+  }
+});
+// under the EU-volume field: say when the tonnes run past JSL's assumed share of India's quota
+function quotaNote(v){
+  const w = el('nf-warn-exportTonnes'); if (!w || !ok(v)) return;
+  if (v > NUMS.exportTonnes.max || v < NUMS.exportTonnes.min) return;   // the cap note already shows
+  const q = MONEY && ok(MONEY.jslQuota_t) ? MONEY.jslQuota_t : NaN;
+  w.hidden = !(ok(q) && v > q + 0.5);
+  if (!w.hidden) w.textContent = `Above JSL’s assumed ${inr(q)} t of quota: ${inr(v - q)} t would pay the 50% out-of-quota duty. The value to JSL counts in-quota tonnes only.`;
+}
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.classList.contains('numin')){ const k = t.dataset.k, v = parseFloat(t.value); t.removeAttribute('aria-invalid'); setState({[k]: ok(v) ? Math.round(v) / sc(k) : state[k]}); t.value = Math.round(state[k] * sc(k)); }
+  if (t.dataset.num){
+    const k = t.dataset.num, v = parseFloat(String(t.value).replace(/[, ]/g, '')), warnEl = el('nf-warn-'+k);
+    if (warnEl) { warnEl.hidden = !(ok(v) && (v > NUMS[k].max || v < NUMS[k].min)); if (!warnEl.hidden) warnEl.textContent = numCapNote(k, v); }
+    setState({[k]: ok(v) ? v : state[k]}); t.value = k === 'exportTonnes' ? inr(state[k]) : state[k];
+    if (k === 'exportTonnes' && warnEl && warnEl.hidden) quotaNote(state[k]);
+  }
+  if (t.dataset.slab){ flush(); t.value = state.indonesiaSlabE == null ? '' : state.indonesiaSlabE; }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.target.classList.contains('numin') || e.target.dataset.num)) e.target.blur();
+  if (e.key === 'Enter' && e.target.id === 'seekT') el('seekBtn').click();
+  if (e.key === 'Enter' && e.target.id === 'optT') runOpt();
+});
+let rz = 0;
+window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(render); });
+
+/* sticky mini summary: shown only once the hero numbers have scrolled ABOVE the viewport.
+   isIntersecting alone can't tell "scrolled past above" from "not reached yet below" (both are
+   false), which used to pop the bar over the top of the page - covering the header, or on mobile
+   the sliders - while heroes was still below the fold (e.g. on load, or scrolling back up past
+   the levers). boundingClientRect.top < 0 disambiguates: only true once heroes is above us. */
+if ('IntersectionObserver' in window){
+  new IntersectionObserver(([en]) => {
+    const show = !en.isIntersecting && en.boundingClientRect.top < 0;
+    el('mini').classList.toggle('show', show); el('mini').setAttribute('aria-hidden', String(!show));
+    el('mini').querySelector('a').tabIndex = show ? 0 : -1;
+  }, {threshold: 0.15}).observe(el('heroes'));
+}
+
+/* ================= init ================= */
+buildSetup(); buildLevers(); buildFolds(); clampState(); render();
+if (M.__stub) console.info('StainlessCarbon: model.js not found - running on the inline stub (placeholder numbers).');
+})();
+</script>
+</body>
+</html>
